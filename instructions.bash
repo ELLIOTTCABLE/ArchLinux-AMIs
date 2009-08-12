@@ -39,8 +39,7 @@ pacman --noconfirm -Sc
 
 PACKS="base base-devel"
 
-ARCH=x86_64
-EC2_ARCH=x86_64
+ARCH="x86_64"
 ROOT=arch_$ARCH
 
 cat <<EOF > pacman.conf
@@ -183,7 +182,7 @@ none /dev/shm tmpfs defaults 0 0
 EOF
 
 cd $ROOT/lib/modules
-curl -s http://static.iphash.net/ec2/$EC2_ARCH/2.6.21.7-2.fc8xen.cpio.lzma|lzma -d |cpio -idmv 
+curl -s http://static.iphash.net/ec2/$ARCH/2.6.21.7-2.fc8xen.cpio.lzma|lzma -d |cpio -idmv 
 cd ../../..
 
 wget http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.zip
@@ -194,7 +193,7 @@ IMAGE_NAME="Arch_Linux-$(date +%G%m%d)-x86_64-4"
 ./ec2-ami-tools/bin/ec2-bundle-vol \
   --cert /tmp/cert-*.pem --privatekey /tmp/pk-*.pem \
   --user "$(cat /tmp/account_number)" \
-  --arch x86_64 --kernel aki-b51cf9dc --ramdisk ari-b31cf9da \
+  --arch $ARCH --kernel aki-b51cf9dc --ramdisk ari-b31cf9da \
   --size 10240 --fstab fstab --volume $ROOT --no-inherit \
   --prefix "$IMAGE_NAME" \
   --batch --debug && \
