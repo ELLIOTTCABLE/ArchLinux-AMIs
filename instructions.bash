@@ -47,28 +47,43 @@ cat <<EOF > pacman.conf
 [options]
 HoldPkg     = pacman glibc
 SyncFirst   = pacman
- 
+
 [core]
-Server = http://mirror.cs.vt.edu/pub/ArchLinux/\$repo/os/$ARCH
-Server = http://mirror.umoss.org/archlinux/\$repo/os/$ARCH
-Server = http://mirror.rit.edu/archlinux/\$repo/os/$ARCH
-Server = http://mirrors.gigenet.com/archlinux/\$repo/os/$ARCH
-Include = /etc/pacman.d/mirrorlist
- 
+Server = http://mirror.umoss.org/archlinux/$repo/os/x86_64
+Server = http://mirror.cs.vt.edu/pub/ArchLinux/$repo/os/x86_64
+Server = http://mirrors.portafixe.com/archlinux/$repo/os/x86_64
+Server = http://mirror.rit.edu/archlinux/$repo/os/x86_64
+Server = http://archlinux.umflint.edu/$repo/os/x86_64
+Server = http://mirrors.gigenet.com/archlinux/$repo/os/x86_64
+Server = ftp://mirror.cs.vt.edu/pub/ArchLinux/$repo/os/x86_64
+Server = http://mirror.csclub.uwaterloo.ca/archlinux/$repo/os/x86_64
+Server = http://distro.ibiblio.org/pub/linux/distributions/archlinux/$repo/os/x86_64
+Server = http://mirrors.easynews.com/linux/archlinux/$repo/os/x86_64
+
 [extra]
-Server = http://mirror.cs.vt.edu/pub/ArchLinux/\$repo/os/$ARCH
-Server = http://mirror.umoss.org/archlinux/\$repo/os/$ARCH
-Server = http://mirror.rit.edu/archlinux/\$repo/os/$ARCH
-Server = http://mirrors.gigenet.com/archlinux/\$repo/os/$ARCH
-Include = /etc/pacman.d/mirrorlist
- 
+Server = http://mirror.umoss.org/archlinux/$repo/os/x86_64
+Server = http://mirror.cs.vt.edu/pub/ArchLinux/$repo/os/x86_64
+Server = http://mirrors.portafixe.com/archlinux/$repo/os/x86_64
+Server = http://mirror.rit.edu/archlinux/$repo/os/x86_64
+Server = http://archlinux.umflint.edu/$repo/os/x86_64
+Server = http://mirrors.gigenet.com/archlinux/$repo/os/x86_64
+Server = ftp://mirror.cs.vt.edu/pub/ArchLinux/$repo/os/x86_64
+Server = http://mirror.csclub.uwaterloo.ca/archlinux/$repo/os/x86_64
+Server = http://distro.ibiblio.org/pub/linux/distributions/archlinux/$repo/os/x86_64
+Server = http://mirrors.easynews.com/linux/archlinux/$repo/os/x86_64
+
 [community]
-Server = http://mirror.cs.vt.edu/pub/ArchLinux/\$repo/os/$ARCH
-Server = http://mirror.umoss.org/archlinux/\$repo/os/$ARCH
-Server = http://mirror.rit.edu/archlinux/\$repo/os/$ARCH
-Server = http://mirrors.gigenet.com/archlinux/\$repo/os/$ARCH
-Include = /etc/pacman.d/mirrorlist
- 
+Server = http://mirror.umoss.org/archlinux/$repo/os/x86_64
+Server = http://mirror.cs.vt.edu/pub/ArchLinux/$repo/os/x86_64
+Server = http://mirrors.portafixe.com/archlinux/$repo/os/x86_64
+Server = http://mirror.rit.edu/archlinux/$repo/os/x86_64
+Server = http://archlinux.umflint.edu/$repo/os/x86_64
+Server = http://mirrors.gigenet.com/archlinux/$repo/os/x86_64
+Server = ftp://mirror.cs.vt.edu/pub/ArchLinux/$repo/os/x86_64
+Server = http://mirror.csclub.uwaterloo.ca/archlinux/$repo/os/x86_64
+Server = http://distro.ibiblio.org/pub/linux/distributions/archlinux/$repo/os/x86_64
+Server = http://mirrors.easynews.com/linux/archlinux/$repo/os/x86_64
+
 EOF
 
 mkarchroot -C pacman.conf $ROOT $PACKS
