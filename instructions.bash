@@ -171,7 +171,7 @@ EOF
 
 cd $ROOT/lib/modules
 curl -s http://static.iphash.net/ec2/$ARCH/2.6.21.7-2.fc8xen.cpio.lzma|lzma -d |cpio -idmv 
-cd ../../..
+cd -
 
 wget http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.zip
 unzip ec2-ami-tools.zip
