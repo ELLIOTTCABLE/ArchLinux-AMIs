@@ -23,16 +23,7 @@ ssh root@$BUNDLING_INSTANCE_ADDRESS \
 pacman --noconfirm -Syu
 pacman --noconfirm -Syu
 
-pacman --noconfirm -S base-devel
-pacman --noconfirm -S unzip rsync
-
-pacman --noconfirm -S man-db
-/usr/bin/mandb --quiet
-
-pacman --noconfirm -S ruby rubygems
-/usr/bin/gem install json
-
-pacman --noconfirm -S devtools lzma cpio
+pacman --noconfirm -S ruby unzip rsync devtools lzma cpio
 
 pacman --noconfirm -Sc
 
