@@ -5,16 +5,16 @@ BUNDLING_INSTANCE_ADDRESS=ec2-174-129-103-9.compute-1.amazonaws.com
 
 scp -i ~/.ec2/id_rsa-Void \
   ~/.ec2/*.pem \
-  root@$BUNDLING_INSTANCE_ADDRESS:/mnt/
+  root@$BUNDLING_INSTANCE_ADDRESS:/tmp/
 scp -i ~/.ec2/id_rsa-Void \
   ~/.ec2/account_number \
-  root@$BUNDLING_INSTANCE_ADDRESS:/mnt/
+  root@$BUNDLING_INSTANCE_ADDRESS:/tmp/
 scp -i ~/.ec2/id_rsa-Void \
   ~/.ec2/access_key \
-  root@$BUNDLING_INSTANCE_ADDRESS:/mnt/
+  root@$BUNDLING_INSTANCE_ADDRESS:/tmp/
 scp -i ~/.ec2/id_rsa-Void \
   ~/.ec2/secret_key \
-  root@$BUNDLING_INSTANCE_ADDRESS:/mnt/
+  root@$BUNDLING_INSTANCE_ADDRESS:/tmp/
 
 ssh root@$BUNDLING_INSTANCE_ADDRESS \
   -i ~/.ec2/id_rsa-Void
@@ -192,14 +192,14 @@ mv ec2-ami-tools-* ec2-ami-tools
 export EC2_AMITOOL_HOME="$(pwd)/ec2-ami-tools"
 IMAGE_NAME="Arch_Linux-$(date +%G%m%d)-x86_64-4"
 ./ec2-ami-tools/bin/ec2-bundle-vol \
-  --cert /mnt/cert-*.pem --privatekey /mnt/pk-*.pem \
-  --user "$(cat /mnt/account_number)" \
+  --cert /tmp/cert-*.pem --privatekey /tmp/pk-*.pem \
+  --user "$(cat /tmp/account_number)" \
   --arch x86_64 --kernel aki-b51cf9dc --ramdisk ari-b31cf9da \
   --size 10240 --fstab fstab --volume $ROOT --no-inherit \
   --prefix "$IMAGE_NAME" \
   --batch --debug && \
 ./ec2-ami-tools/bin/ec2-upload-bundle \
-  --access-key "$(cat /mnt/access_key)" --secret-key "$(cat /mnt/secret_key)" \
+  --access-key "$(cat /tmp/access_key)" --secret-key "$(cat /tmp/secret_key)" \
   --bucket arch-linux \
   --manifest "/tmp/${IMAGE_NAME}.manifest.xml" \
   --batch --debug --retry
