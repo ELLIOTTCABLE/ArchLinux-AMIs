@@ -1,5 +1,3 @@
-VERSION=4
-
 BUNDLING_INSTANCE_ID=$(ec2-run-instances --group Void --key Void --monitoring \
   --instance-type m1.large ami-1b799e72 | awk '/INSTANCE/ { print $2 }')
 BUNDLING_INSTANCE_ADDRESS='pending'
@@ -42,6 +40,7 @@ mount /dev/sdb /mnt
 
 PACKS="base base-devel"
 
+VERSION="4"
 ARCH="x86_64"
 NAME="ArchLinux-$(date +%G%m%d)-$ARCH-$VERSION"
 ROOT="/mnt/$NAME"
@@ -183,10 +182,10 @@ export EC2_AMITOOL_HOME="$(pwd)/ec2-ami-tools"
   --user "$(cat /tmp/account_number)" \
   --arch $ARCH --kernel aki-b51cf9dc --ramdisk ari-b31cf9da \
   --size 10240 --fstab fstab --volume $ROOT --no-inherit \
-  --prefix "$IMAGE_NAME" \
-  --batch --debug && \
+  --prefix "$NAME" \
+  --batch --debug
 ./ec2-ami-tools/bin/ec2-upload-bundle \
   --access-key "$(cat /tmp/access_key)" --secret-key "$(cat /tmp/secret_key)" \
   --bucket arch-linux \
-  --manifest "/tmp/${IMAGE_NAME}.manifest.xml" \
+  --manifest "/tmp/${NAME}.manifest.xml" \
   --batch --debug --retry
