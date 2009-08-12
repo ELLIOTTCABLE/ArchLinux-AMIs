@@ -8,16 +8,12 @@ while [[ $BUNDLING_INSTANCE_ADDRESS == 'pending' ]]; do
     | awk '/INSTANCE/ { print $4 }')
 done
 
-scp -i ~/.ec2/id_rsa-Void \
+sleep 10
+
+scp -o "StrictHostKeyChecking no" -i ~/.ec2/id_rsa-Void \
   ~/.ec2/*.pem \
-  root@$BUNDLING_INSTANCE_ADDRESS:/tmp/
-scp -i ~/.ec2/id_rsa-Void \
   ~/.ec2/account_number \
-  root@$BUNDLING_INSTANCE_ADDRESS:/tmp/
-scp -i ~/.ec2/id_rsa-Void \
   ~/.ec2/access_key \
-  root@$BUNDLING_INSTANCE_ADDRESS:/tmp/
-scp -i ~/.ec2/id_rsa-Void \
   ~/.ec2/secret_key \
   root@$BUNDLING_INSTANCE_ADDRESS:/tmp/
 
