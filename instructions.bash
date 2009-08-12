@@ -6,7 +6,7 @@ while [[ $BUNDLING_INSTANCE_ADDRESS == 'pending' ]]; do
     | awk '/INSTANCE/ { print $4 }')
 done
 
-sleep 10
+sleep 25
 
 scp -o "StrictHostKeyChecking no" -i ~/.ec2/id_rsa-Void \
   ~/.ec2/*.pem \
