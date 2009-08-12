@@ -40,7 +40,7 @@ mount /dev/sdb /mnt
 
 PACKS="base base-devel"
 
-VERSION="4"
+VERSION="5"
 ARCH="x86_64"
 NAME="ArchLinux-$(date +%G%m%d)-$ARCH-$VERSION"
 ROOT="/mnt/$NAME"
