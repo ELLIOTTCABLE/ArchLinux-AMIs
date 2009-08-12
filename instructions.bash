@@ -190,7 +190,7 @@ wget http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.zip
 unzip ec2-ami-tools.zip
 mv ec2-ami-tools-* ec2-ami-tools
 export EC2_AMITOOL_HOME="$(pwd)/ec2-ami-tools"
-IMAGE_NAME="Arch_Linux-$(date +%G%m%d)-x86_64-3"
+IMAGE_NAME="Arch_Linux-$(date +%G%m%d)-x86_64-4"
 ./ec2-ami-tools/bin/ec2-bundle-vol \
   --cert /mnt/cert-*.pem --privatekey /mnt/pk-*.pem \
   --user "$(cat /mnt/account_number)" \
