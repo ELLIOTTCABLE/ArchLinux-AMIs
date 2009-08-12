@@ -42,6 +42,8 @@ pacman --noconfirm -S devtools lzma cpio
 
 pacman --noconfirm -Sc
 
+mount /dev/sdb /mnt
+
 PACKS="base base-devel"
 
 ARCH="x86_64"
