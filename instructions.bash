@@ -38,7 +38,15 @@ pacman --noconfirm -Sc
 
 mount /dev/sdb /mnt
 
-PACKS="base base-devel"
+PACKS="acl  attr  bash  binutils  bzip2  coreutils  cpio  cracklib  dash  db  dbus-core  dcron  dhcpcd \
+    dialog  diffutils  e2fsprogs  file  filesystem  findutils  gawk  gcc-libs  gdbm   gettext  glibc  grep \
+    groff  gzip  initscripts  iputils kbd  kernel-headers  \
+    less  libarchive  libgcrypt  libgpg-error  \
+    licenses  logrotate  lzo2  module-init-tools  nano \
+    ncurses  net-tools  pacman pacman-mirrorlist  pam  pcre  perl  popt  procinfo  procps  psmisc \
+    readline  sed  shadow  syslog-ng  sysvinit  tar  tcp_wrappers  texinfo  tzdata \
+    udev  util-linux-ng  vi  wget  which  zlib \
+    openssh curl sudo"
 
 VERSION="5"
 ARCH="x86_64"
