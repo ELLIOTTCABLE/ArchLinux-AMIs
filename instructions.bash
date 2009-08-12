@@ -102,7 +102,7 @@ cat <<EOF >$ROOT/etc/rc.conf
 #
 
 LOCALE="en_US.UTF-8"
-HARDWARECLOCK="localtime"
+HARDWARECLOCK="UTC"
 USEDIRECTISA="no"
 TIMEZONE="UTC"
 KEYMAP="us"
