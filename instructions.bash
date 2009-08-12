@@ -1,9 +1,12 @@
 VERSION=4
 
-ec2-run-instances ami-1b799e72 --group Void --key Void --instance-type m1.large --monitoring
-BUNDLING_INSTANCE_ID=
-ec2-describe-instances $BUNDLING_INSTANCE_ID
-BUNDLING_INSTANCE_ADDRESS=
+BUNDLING_INSTANCE_ID=$(ec2-run-instances --group Void --key Void --monitoring \
+  --instance-type m1.large ami-1b799e72 | awk '/INSTANCE/ { print $2 }')
+BUNDLING_INSTANCE_ADDRESS='pending'
+while [[ $BUNDLING_INSTANCE_ADDRESS == 'pending' ]]; do
+  BUNDLING_INSTANCE_ADDRESS=$(ec2-describe-instances $BUNDLING_INSTANCE_ID \
+    | awk '/INSTANCE/ { print $4 }')
+done
 
 scp -i ~/.ec2/id_rsa-Void \
   ~/.ec2/*.pem \
