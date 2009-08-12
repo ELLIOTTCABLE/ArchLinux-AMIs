@@ -124,7 +124,11 @@ cat <<EOF >$ROOT/etc/hosts.deny
 #
 # /etc/hosts.deny
 #
+
+
+
 # End of file
+
 EOF
 
 cat <<EOF>>$ROOT/etc/rc.local
@@ -137,6 +141,7 @@ if [ -f /root/firstboot ]; then
   fi
   rm -f /root/user-data /root/firstboot   
 fi
+
 EOF
 
 cat <<EOF>$ROOT/etc/inittab
@@ -151,6 +156,7 @@ rh:06:wait:/etc/rc.shutdown
 su:S:wait:/sbin/sulogin -p
 ca::ctrlaltdel:/sbin/shutdown -t3 -r now
 # End of file
+
 EOF
 
 sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/'  $ROOT/etc/ssh/sshd_config
@@ -159,13 +165,14 @@ sed -i 's/#UseDNS yes/UseDNS no/' $ROOT/etc/ssh/sshd_config
 touch $ROOT/root/firstboot
 
 cat <<-EOF>fstab
-	/dev/sda1 /     ext3    defaults 1 1
-	/dev/sda2 /mnt  ext3    defaults 0 0
-	/dev/sda3 swap  swap    defaults 0 0
-	none      /proc proc    defaults 0 0
-	none      /sys  sysfs   defaults 0 0
-	none /dev/pts devpts gid=5,mode=620 0 0
-	none /dev/shm tmpfs defaults 0 0 
+/dev/sda1 /     ext3    defaults 1 1
+/dev/sda2 /mnt  ext3    defaults 0 0
+/dev/sda3 swap  swap    defaults 0 0
+none      /proc proc    defaults 0 0
+none      /sys  sysfs   defaults 0 0
+none /dev/pts devpts gid=5,mode=620 0 0
+none /dev/shm tmpfs defaults 0 0
+
 EOF
 
 cd $ROOT/lib/modules
