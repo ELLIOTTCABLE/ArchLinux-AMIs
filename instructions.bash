@@ -1,3 +1,5 @@
+VERSION=4
+
 ec2-run-instances ami-1b799e72 --group Void --key Void --instance-type m1.large --monitoring
 BUNDLING_INSTANCE_ID=
 ec2-describe-instances $BUNDLING_INSTANCE_ID
@@ -40,7 +42,8 @@ pacman --noconfirm -Sc
 PACKS="base base-devel"
 
 ARCH="x86_64"
-ROOT=arch_$ARCH
+NAME="ArchLinux-$(date +%G%m%d)-$ARCH-$VERSION"
+ROOT="/mnt/$NAME"
 
 cat <<EOF > pacman.conf
 [options]
@@ -189,7 +192,6 @@ wget http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.zip
 unzip ec2-ami-tools.zip
 mv ec2-ami-tools-* ec2-ami-tools
 export EC2_AMITOOL_HOME="$(pwd)/ec2-ami-tools"
-IMAGE_NAME="Arch_Linux-$(date +%G%m%d)-x86_64-4"
 ./ec2-ami-tools/bin/ec2-bundle-vol \
   --cert /tmp/cert-*.pem --privatekey /tmp/pk-*.pem \
   --user "$(cat /tmp/account_number)" \
