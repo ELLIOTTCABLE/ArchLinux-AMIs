@@ -1,7 +1,7 @@
 ec2-run-instances ami-1b799e72 --group Void --key Void --instance-type m1.large --monitoring
-BUNDLING_INSTANCE_ID=i-2fbaa446
+BUNDLING_INSTANCE_ID=
 ec2-describe-instances $BUNDLING_INSTANCE_ID
-BUNDLING_INSTANCE_ADDRESS=ec2-174-129-103-9.compute-1.amazonaws.com
+BUNDLING_INSTANCE_ADDRESS=
 
 scp -i ~/.ec2/id_rsa-Void \
   ~/.ec2/*.pem \
