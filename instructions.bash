@@ -200,6 +200,6 @@ IMAGE_NAME="Arch_Linux-$(date +%G%m%d)-x86_64-4"
   --batch --debug && \
 ./ec2-ami-tools/bin/ec2-upload-bundle \
   --access-key "$(cat /mnt/access_key)" --secret-key "$(cat /mnt/secret_key)" \
-  --bucket elliottcable-amis \
+  --bucket arch-linux \
   --manifest "/tmp/${IMAGE_NAME}.manifest.xml" \
   --batch --debug --retry
