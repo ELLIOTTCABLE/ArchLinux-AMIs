@@ -1,5 +1,5 @@
 BUNDLING_INSTANCE_ID=$(ec2-run-instances --group Void --key Void --monitoring \
-  --instance-type m1.large ami-1b799e72 | awk '/INSTANCE/ { print $2 }')
+  --instance-type m1.xlarge ami-1b799e72 | awk '/INSTANCE/ { print $2 }')
 BUNDLING_INSTANCE_ADDRESS="pending"
 while [[ $BUNDLING_INSTANCE_ADDRESS == "pending" ]]; do
   BUNDLING_INSTANCE_ADDRESS=$(ec2-describe-instances $BUNDLING_INSTANCE_ID \
