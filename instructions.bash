@@ -50,7 +50,7 @@ PACKS="openssh curl \
 VERSION="5"
 ARCH="x86_64"
 NAME="ArchLinux-$(date +%G%m%d)-$ARCH-$VERSION"
-ROOT="/mnt/$NAME"
+ROOT="/mnt/$NAME.root"
 
 cat <<EOF > fstab
 /dev/sda1   /             ext3  defaults 1 1
