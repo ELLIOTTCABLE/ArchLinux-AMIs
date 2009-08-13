@@ -47,7 +47,7 @@ PACKS="kernel-headers tzdata glibc zlib ncurses readline bash gcc-libs db \
   lzo2 module-init-tools nano libfetch pacman-mirrorlist pacman procinfo \
   procps psmisc glib2 eventlog libcap syslog-ng tar vi"
 
-VERSION="6"
+VERSION="7"
 ARCH="x86_64"
 NAME="ArchLinux-$(date +%G%m%d)-$ARCH-$VERSION"
 ROOT="/mnt/$NAME.root"
