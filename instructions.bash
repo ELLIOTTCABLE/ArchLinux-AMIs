@@ -47,7 +47,7 @@ PACKS=" \
   openssh \
   curl binutils bzip2 cpio dash dbus-core dcron dhcpcd \
   dialog diffutils file gawk gettext groff \
-  util-linux-ng net-tools kbd sysvinit initscripts iputils less \
+  util-linux-ng net-tools kbd sysvinit initscripts iputils \
   licenses logrotate \
   module-init-tools pacman \
   procps psmisc syslog-ng"

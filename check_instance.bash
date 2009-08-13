@@ -14,7 +14,7 @@ ssh -o "StrictHostKeyChecking no" root@$INSTANCE_ADDRESS \
   -i ~/.ec2/id_rsa-Void
 
 # Install the packages we’ve removed
-pacman --noconfirm -S sudo wget which vi tar nano lzo2 procinfo libgcrypt
+pacman --noconfirm -S sudo wget which vi tar nano lzo2 procinfo libgcrypt less
 
 shutdown -h now && exit
 
