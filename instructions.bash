@@ -192,4 +192,4 @@ cd -
   --bucket "arch-linux" \
   --manifest "/mnt/${NAME}.manifest.xml" --batch --debug --retry
 
-rm -rf "/mnt/$NAME"
+rm -rf /mnt/$NAME*
