@@ -184,12 +184,12 @@ export EC2_AMITOOL_HOME="$(pwd)/ec2-ami-tools"
   --user "$(cat /tmp/account_number)" \
   --arch $ARCH --kernel aki-b51cf9dc --ramdisk ari-b31cf9da \
   --size 10240 --fstab fstab --volume $ROOT --no-inherit \
-  --prefix "$NAME" --batch --debug
+  --destination "/mnt" --prefix "$NAME" --batch --debug
 
 ./ec2-ami-tools/bin/ec2-upload-bundle \
   --access-key "$(cat /tmp/access_key)" --secret-key "$(cat /tmp/secret_key)" \
   --bucket "arch-linux" \
-  --manifest "/tmp/${NAME}.manifest.xml" --batch --debug --retry
+  --manifest "/mnt/${NAME}.manifest.xml" --batch --debug --retry
 
 exit
 
