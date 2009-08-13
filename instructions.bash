@@ -46,7 +46,7 @@ PACKS=" \
   dialog diffutils file gawk gettext groff \
   util-linux-ng net-tools kbd sysvinit initscripts iputils less \
   libgcrypt licenses logrotate \
-  module-init-tools pacman procinfo \
+  module-init-tools pacman \
   procps psmisc syslog-ng"
 
 VERSION="10"
