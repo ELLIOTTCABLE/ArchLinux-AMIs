@@ -37,14 +37,15 @@ export EC2_AMITOOL_HOME="$(pwd)/ec2-ami-tools"
 
 # openssh - necessary to SSH in
 # curl - needed for the initscripts that download the pubkey
-PACKS="openssh curl \
-  acl attr bash binutils bzip2 coreutils cpio cracklib dash db \
-  dbus-core dcron dhcpcd dialog diffutils e2fsprogs file filesystem \
-  findutils gawk gcc-libs gdbm gettext glibc grep groff gzip initscripts \
-  iputils kbd kernel-headers less libarchive libgcrypt libgpg-error licenses \
-  logrotate lzo2 module-init-tools nano ncurses net-tools pacman \
-  pacman-mirrorlist pam pcre perl popt procinfo procps psmisc readline sed \
-  shadow syslog-ng sysvinit tar tcp_wrappers tzdata udev util-linux-ng vi"
+PACKS="kernel-headers tzdata glibc zlib ncurses readline bash gcc-libs db \
+  gdbm cracklib pam shadow attr acl gmp coreutils perl opensslk tcp_wrappers \
+  e2fsprogs sqlite3 heimdal openssh run-parts findutils sed ca-certificates \
+  curl binutils bzip2 cpio dash expat filesystem dbus-core dcron dhcpcd \
+  dialog gzip texinfoa diffutils file gawk gettext pcre grep groff \
+  util-linux-ng udev net-tools kbd sysvinit initscripts iputils less \
+  xz-utilsbeta libarchive libgpg-error libgcrypt licenses popt logrotate \
+  lzo2 module-init-tools nano libfetch pacman-mirrorlist pacman procinfo \
+  procps psmisc glib2 eventlog libcap syslog-ng tar vi"
 
 VERSION="6"
 ARCH="x86_64"
