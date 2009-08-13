@@ -37,7 +37,8 @@ export EC2_AMITOOL_HOME="$(pwd)/ec2-ami-tools"
 
 # openssh - necessary to SSH in
 # curl - needed for the initscripts that download the pubkey
-PACKS="kernel-headers tzdata glibc zlib ncurses readline bash gcc-libs db \
+# procps - ps, top, kill
+PACKS="glibc zlib ncurses readline bash gcc-libs db \
   gdbm cracklib pam shadow attr acl gmp coreutils perl openssl tcp_wrappers \
   e2fsprogs sqlite3 heimdal openssh run-parts findutils sed ca-certificates \
   curl binutils bzip2 cpio dash expat filesystem dbus-core dcron dhcpcd \
