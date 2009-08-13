@@ -29,14 +29,17 @@ pacman --noconfirm -Sc
 
 mount /dev/sdb /mnt
 
-PACKS="acl attr bash binutils bzip2 coreutils cpio cracklib dash db \
+# openssh - necessary to SSH in
+# curl - needed for the initscripts that download the pubkey
+PACKS="openssh curl \
+  acl attr bash binutils bzip2 coreutils cpio cracklib dash db \
   dbus-core dcron dhcpcd dialog diffutils e2fsprogs file filesystem \
   findutils gawk gcc-libs gdbm gettext glibc grep groff gzip initscripts \
   iputils kbd kernel-headers less libarchive libgcrypt libgpg-error licenses \
   logrotate lzo2 module-init-tools nano ncurses net-tools pacman \
   pacman-mirrorlist pam pcre perl popt procinfo procps psmisc readline sed \
   shadow syslog-ng sysvinit tar tcp_wrappers tzdata udev util-linux-ng vi \
-  wget which zlib openssh curl"
+  zlib"
 
 VERSION="5"
 ARCH="x86_64"
@@ -182,7 +185,7 @@ export EC2_AMITOOL_HOME="$(pwd)/ec2-ami-tools"
   --arch $ARCH --kernel aki-b51cf9dc --ramdisk ari-b31cf9da \
   --size 10240 --fstab fstab --volume $ROOT --no-inherit \
   --prefix "$NAME" --batch --debug
-  
+
 ./ec2-ami-tools/bin/ec2-upload-bundle \
   --access-key "$(cat /tmp/access_key)" --secret-key "$(cat /tmp/secret_key)" \
   --bucket "arch-linux" \
