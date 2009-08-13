@@ -43,7 +43,7 @@ ARCH="x86_64"
 NAME="ArchLinux-$(date +%G%m%d)-$ARCH-$VERSION"
 ROOT="/mnt/$NAME"
 
-cat <<-EOF>fstab
+cat <<EOF > fstab
 /dev/sda1   /             ext3  defaults 1 1
 #/dev/sda2  /mnt          ext3  defaults 0 0
 /dev/sda3   swap          swap  defaults 0 0
@@ -65,28 +65,28 @@ cat <<EOF > pacman.conf
 [options]
 HoldPkg     = pacman glibc
 SyncFirst   = pacman
- 
+
 [core]
 Server = http://mirror.cs.vt.edu/pub/ArchLinux/\$repo/os/$ARCH
 Server = http://mirror.umoss.org/archlinux/\$repo/os/$ARCH
 Server = http://mirror.rit.edu/archlinux/\$repo/os/$ARCH
 Server = http://mirrors.gigenet.com/archlinux/\$repo/os/$ARCH
 Include = /etc/pacman.d/mirrorlist
- 
+
 [extra]
 Server = http://mirror.cs.vt.edu/pub/ArchLinux/\$repo/os/$ARCH
 Server = http://mirror.umoss.org/archlinux/\$repo/os/$ARCH
 Server = http://mirror.rit.edu/archlinux/\$repo/os/$ARCH
 Server = http://mirrors.gigenet.com/archlinux/\$repo/os/$ARCH
 Include = /etc/pacman.d/mirrorlist
- 
+
 [community]
 Server = http://mirror.cs.vt.edu/pub/ArchLinux/\$repo/os/$ARCH
 Server = http://mirror.umoss.org/archlinux/\$repo/os/$ARCH
 Server = http://mirror.rit.edu/archlinux/\$repo/os/$ARCH
 Server = http://mirrors.gigenet.com/archlinux/\$repo/os/$ARCH
 Include = /etc/pacman.d/mirrorlist
- 
+
 EOF
 
 mkarchroot -C pacman.conf $ROOT $PACKS
@@ -99,7 +99,7 @@ mkdir -m 755 $ROOT/dev/pts
 mkdir -m 1777 $ROOT/dev/shm
 
 
-cat <<EOF >$ROOT/etc/rc.conf
+cat <<EOF > $ROOT/etc/rc.conf
 #
 # /etc/rc.conf - Main Configuration for Arch Linux
 #
@@ -123,7 +123,7 @@ DAEMONS=(syslog-ng network crond sshd)
 
 EOF
 
-cat <<EOF >$ROOT/etc/hosts.deny
+cat <<EOF > $ROOT/etc/hosts.deny
 #
 # /etc/hosts.deny
 #
@@ -134,7 +134,7 @@ cat <<EOF >$ROOT/etc/hosts.deny
 
 EOF
 
-cat <<EOF>>$ROOT/etc/rc.local
+cat <<EOF >> $ROOT/etc/rc.local
 killall nash-hotplug
 if [ -f /root/firstboot ]; then
   mkdir /root/.ssh
@@ -142,12 +142,12 @@ if [ -f /root/firstboot ]; then
   if curl --retry 3 --retry-delay 5 --silent --fail -o /root/user-data http://169.254.169.254/1.0/user-data; then
      bash /root/user-data
   fi
-  rm -f /root/user-data /root/firstboot   
+  rm -f /root/user-data /root/firstboot
 fi
 
 EOF
 
-cat <<EOF>$ROOT/etc/inittab
+cat <<EOF > $ROOT/etc/inittab
 #
 # /etc/inittab
 #
@@ -162,28 +162,29 @@ ca::ctrlaltdel:/sbin/shutdown -t3 -r now
 
 EOF
 
-sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/'  $ROOT/etc/ssh/sshd_config
+sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' $ROOT/etc/ssh/sshd_config
 sed -i 's/#UseDNS yes/UseDNS no/' $ROOT/etc/ssh/sshd_config
 
 touch $ROOT/root/firstboot
 
 cd $ROOT/lib/modules
-curl -s http://static.iphash.net/ec2/$ARCH/2.6.21.7-2.fc8xen.cpio.lzma|lzma -d |cpio -idmv 
+curl -s http://static.iphash.net/ec2/$ARCH/2.6.21.7-2.fc8xen.cpio.lzma | lzma -d | cpio -idmv
 cd -
 
 wget http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.zip
 unzip ec2-ami-tools.zip
 mv ec2-ami-tools-* ec2-ami-tools
 export EC2_AMITOOL_HOME="$(pwd)/ec2-ami-tools"
+
 ./ec2-ami-tools/bin/ec2-bundle-vol \
   --cert /tmp/cert-*.pem --privatekey /tmp/pk-*.pem \
   --user "$(cat /tmp/account_number)" \
   --arch $ARCH --kernel aki-b51cf9dc --ramdisk ari-b31cf9da \
   --size 10240 --fstab fstab --volume $ROOT --no-inherit \
-  --prefix "$NAME" \
-  --batch --debug
+  --prefix "$NAME" --batch --debug
+  
 ./ec2-ami-tools/bin/ec2-upload-bundle \
   --access-key "$(cat /tmp/access_key)" --secret-key "$(cat /tmp/secret_key)" \
-  --bucket arch-linux \
-  --manifest "/tmp/${NAME}.manifest.xml" \
-  --batch --debug --retry
+  --bucket "arch-linux" \
+  --manifest "/tmp/${NAME}.manifest.xml" --batch --debug --retry
+
