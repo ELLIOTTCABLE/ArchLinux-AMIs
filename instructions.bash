@@ -37,8 +37,11 @@ export EC2_AMITOOL_HOME="$(pwd)/ec2-ami-tools"
 
 # openssh - necessary to SSH in
 # curl - needed for the initscripts that download the pubkey
+# module-init-tools - modprobe, etc - needed to utilize modules
+# pacman - to install anything we don’t include
 # procps - ps, top, kill
 # psmisc - killall (initscripts)
+# syslog-ng - system logging
 PACKS=" \
   gmp \
   openssh \
