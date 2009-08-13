@@ -35,8 +35,16 @@ mv ec2-ami-tools-* ec2-ami-tools
 
 export EC2_AMITOOL_HOME="$(pwd)/ec2-ami-tools"
 
+### Desired
 # openssh - necessary to SSH in
 # curl - needed for the initscripts that download the pubkey
+### Required
+# util-linux-ng - Piles of UNIX tools I don’t want to get rid of (see:
+#   http://freshmeat.net/projects/util-linux/)
+# initscripts - necessary for system boot
+# iputils - ping
+# licenses - fairly sure I’m legally required to include this
+# logrotate - intelligent to have everywhere
 # module-init-tools - modprobe, etc - needed to utilize modules
 # pacman - to install anything we don’t include
 # procps - ps, top, kill
