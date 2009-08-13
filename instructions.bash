@@ -43,6 +43,24 @@ ARCH="x86_64"
 NAME="ArchLinux-$(date +%G%m%d)-$ARCH-$VERSION"
 ROOT="/mnt/$NAME"
 
+cat <<-EOF>fstab
+/dev/sda1   /             ext3  defaults 1 1
+#/dev/sda2  /mnt          ext3  defaults 0 0
+/dev/sda3   swap          swap  defaults 0 0
+#/dev/sdb   /mnt/store-1  ext3  defaults 0 0
+#/dev/sdc   /mnt/store-2  ext3  defaults 0 0
+#/dev/sdd   /mnt/store-3  ext3  defaults 0 0
+#/dev/sde   /mnt/store-4  ext3  defaults 0 0
+
+### EBS Volumes ###
+
+none /proc proc defaults 0 0
+none /sys sysfs defaults 0 0
+none /dev/pts devpts gid=5,mode=620 0 0
+none /dev/shm tmpfs defaults 0 0
+
+EOF
+
 cat <<EOF > pacman.conf
 [options]
 HoldPkg     = pacman glibc
@@ -148,24 +166,6 @@ sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/'  $ROOT/etc/ssh
 sed -i 's/#UseDNS yes/UseDNS no/' $ROOT/etc/ssh/sshd_config
 
 touch $ROOT/root/firstboot
-
-cat <<-EOF>fstab
-/dev/sda1   /             ext3  defaults 1 1
-#/dev/sda2  /mnt          ext3  defaults 0 0
-/dev/sda3   swap          swap  defaults 0 0
-#/dev/sdb   /mnt/store-1  ext3  defaults 0 0
-#/dev/sdc   /mnt/store-2  ext3  defaults 0 0
-#/dev/sdd   /mnt/store-3  ext3  defaults 0 0
-#/dev/sde   /mnt/store-4  ext3  defaults 0 0
-
-### EBS Volumes ###
-
-none /proc proc defaults 0 0
-none /sys sysfs defaults 0 0
-none /dev/pts devpts gid=5,mode=620 0 0
-none /dev/shm tmpfs defaults 0 0
-
-EOF
 
 cd $ROOT/lib/modules
 curl -s http://static.iphash.net/ec2/$ARCH/2.6.21.7-2.fc8xen.cpio.lzma|lzma -d |cpio -idmv 
