@@ -41,7 +41,7 @@ PACKS="openssh curl \
   shadow syslog-ng sysvinit tar tcp_wrappers tzdata udev util-linux-ng vi \
   zlib"
 
-VERSION="5"
+VERSION="9"
 ARCH="x86_64"
 NAME="ArchLinux-$(date +%G%m%d)-$ARCH-$VERSION"
 ROOT="/mnt/$NAME"
