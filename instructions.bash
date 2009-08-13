@@ -39,8 +39,8 @@ export EC2_AMITOOL_HOME="$(pwd)/ec2-ami-tools"
 # curl - needed for the initscripts that download the pubkey
 # procps - ps, top, kill
 PACKS=" \
-  gmp tcp_wrappers \
-  heimdal openssh run-parts findutils sed ca-certificates \
+  gmp \
+  openssh run-parts findutils sed ca-certificates \
   curl binutils bzip2 cpio dash expat filesystem dbus-core dcron dhcpcd \
   dialog gzip texinfo diffutils file gawk gettext pcre grep groff \
   util-linux-ng udev net-tools kbd sysvinit initscripts iputils less \
