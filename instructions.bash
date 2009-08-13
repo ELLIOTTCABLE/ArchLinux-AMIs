@@ -46,7 +46,7 @@ PACKS=" \
   gmp \
   openssh \
   curl binutils bzip2 cpio dash dbus-core dcron dhcpcd \
-  dialog diffutils file gawk gettext groff \
+  dialog diffutils file gawk gettext \
   util-linux-ng initscripts iputils \
   licenses logrotate \
   module-init-tools pacman \
