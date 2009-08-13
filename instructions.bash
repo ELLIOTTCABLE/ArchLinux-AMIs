@@ -42,7 +42,7 @@ PACKS=" \
   gmp \
   openssh \
   curl binutils bzip2 cpio dash dbus-core dcron dhcpcd \
-  dialog diffutils file gawk gettext pcre grep groff \
+  dialog diffutils file gawk gettext grep groff \
   util-linux-ng udev net-tools kbd sysvinit initscripts iputils less \
   xz-utils libarchive libgpg-error libgcrypt licenses popt logrotate \
   lzo2 module-init-tools nano libfetch pacman-mirrorlist pacman procinfo \
