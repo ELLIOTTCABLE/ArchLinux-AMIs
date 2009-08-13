@@ -44,8 +44,7 @@ PACKS="openssh curl \
   iputils kbd kernel-headers less libarchive libgcrypt libgpg-error licenses \
   logrotate lzo2 module-init-tools nano ncurses net-tools pacman \
   pacman-mirrorlist pam pcre perl popt procinfo procps psmisc readline sed \
-  shadow syslog-ng sysvinit tar tcp_wrappers tzdata udev util-linux-ng vi \
-  zlib"
+  shadow syslog-ng sysvinit tar tcp_wrappers tzdata udev util-linux-ng vi"
 
 VERSION="6"
 ARCH="x86_64"
@@ -191,3 +190,5 @@ cd -
   --access-key "$(cat /tmp/access_key)" --secret-key "$(cat /tmp/secret_key)" \
   --bucket "arch-linux" \
   --manifest "/mnt/${NAME}.manifest.xml" --batch --debug --retry
+
+rm -rf "/mnt/$NAME"
