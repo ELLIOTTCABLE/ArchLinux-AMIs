@@ -36,7 +36,7 @@ PACKS="acl attr bash binutils bzip2 coreutils cpio cracklib dash db \
   logrotate lzo2 module-init-tools nano ncurses net-tools pacman \
   pacman-mirrorlist pam pcre perl popt procinfo procps psmisc readline sed \
   shadow syslog-ng sysvinit tar tcp_wrappers tzdata udev util-linux-ng vi \
-  wget which zlib openssh curl sudo"
+  wget which zlib openssh curl"
 
 VERSION="5"
 ARCH="x86_64"
