@@ -27,12 +27,13 @@ pacman --noconfirm -S ruby unzip rsync devtools lzma cpio
 
 pacman --noconfirm -Sc
 
+mount /dev/sdb /mnt
+
 wget http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.zip
 unzip ec2-ami-tools.zip
 mv ec2-ami-tools-* ec2-ami-tools
-export EC2_AMITOOL_HOME="$(pwd)/ec2-ami-tools"
 
-mount /dev/sdb /mnt
+export EC2_AMITOOL_HOME="$(pwd)/ec2-ami-tools"
 
 # openssh - necessary to SSH in
 # curl - needed for the initscripts that download the pubkey
