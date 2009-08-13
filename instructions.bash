@@ -41,7 +41,7 @@ export EC2_AMITOOL_HOME="$(pwd)/ec2-ami-tools"
 PACKS=" \
   gmp \
   openssh \
-  curl binutils bzip2 cpio dash expat filesystem dbus-core dcron dhcpcd \
+  curl binutils bzip2 cpio dash dbus-core dcron dhcpcd \
   dialog gzip texinfo diffutils file gawk gettext pcre grep groff \
   util-linux-ng udev net-tools kbd sysvinit initscripts iputils less \
   xz-utils libarchive libgpg-error libgcrypt licenses popt logrotate \
