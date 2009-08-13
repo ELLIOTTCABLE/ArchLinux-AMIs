@@ -48,7 +48,7 @@ PACKS=" \
   lzo2 module-init-tools nano pacman procinfo \
   procps psmisc syslog-ng tar"
 
-VERSION="9"
+VERSION="10"
 ARCH="x86_64"
 NAME="ArchLinux-$(date +%G%m%d)-$ARCH-$VERSION"
 ROOT="/mnt/$NAME.root"
