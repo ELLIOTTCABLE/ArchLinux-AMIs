@@ -40,7 +40,7 @@ export EC2_AMITOOL_HOME="$(pwd)/ec2-ami-tools"
 # procps - ps, top, kill
 PACKS=" \
   gmp \
-  openssh run-parts findutils sed ca-certificates \
+  openssh ca-certificates \
   curl binutils bzip2 cpio dash expat filesystem dbus-core dcron dhcpcd \
   dialog gzip texinfo diffutils file gawk gettext pcre grep groff \
   util-linux-ng udev net-tools kbd sysvinit initscripts iputils less \
