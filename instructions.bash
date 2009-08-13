@@ -39,7 +39,7 @@ export EC2_AMITOOL_HOME="$(pwd)/ec2-ami-tools"
 # curl - needed for the initscripts that download the pubkey
 # procps - ps, top, kill
 PACKS="bash gcc-libs \
-  gdbm pam shadow attr acl gmp coreutils perl openssl tcp_wrappers \
+  gdbm shadow attr acl gmp coreutils perl openssl tcp_wrappers \
   e2fsprogs sqlite3 heimdal openssh run-parts findutils sed ca-certificates \
   curl binutils bzip2 cpio dash expat filesystem dbus-core dcron dhcpcd \
   dialog gzip texinfo diffutils file gawk gettext pcre grep groff \
