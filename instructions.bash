@@ -1,7 +1,7 @@
 BUNDLING_INSTANCE_ID=$(ec2-run-instances --group Void --key Void --monitoring \
   --instance-type m1.large ami-1b799e72 | awk '/INSTANCE/ { print $2 }')
-BUNDLING_INSTANCE_ADDRESS='pending'
-while [[ $BUNDLING_INSTANCE_ADDRESS == 'pending' ]]; do
+BUNDLING_INSTANCE_ADDRESS="pending"
+while [[ $BUNDLING_INSTANCE_ADDRESS == "pending" ]]; do
   BUNDLING_INSTANCE_ADDRESS=$(ec2-describe-instances $BUNDLING_INSTANCE_ID \
     | awk '/INSTANCE/ { print $4 }')
 done
@@ -165,8 +165,8 @@ ca::ctrlaltdel:/sbin/shutdown -t3 -r now
 
 EOF
 
-sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' $ROOT/etc/ssh/sshd_config
-sed -i 's/#UseDNS yes/UseDNS no/' $ROOT/etc/ssh/sshd_config
+sed -i "s/#PasswordAuthentication yes/PasswordAuthentication no/" $ROOT/etc/ssh/sshd_config
+sed -i "s/#UseDNS yes/UseDNS no/" $ROOT/etc/ssh/sshd_config
 
 touch $ROOT/root/firstboot
 
@@ -196,8 +196,8 @@ exit
 AMI_ID=
 INSTANCE_ID=$(ec2-run-instances --group Void --key Void --monitoring \
   --instance-type m1.large $AMI_ID | awk '/INSTANCE/ { print $2 }')
-INSTANCE_ADDRESS='pending'
-while [[ $INSTANCE_ADDRESS == 'pending' ]]; do
+INSTANCE_ADDRESS="pending"
+while [[ $INSTANCE_ADDRESS == "pending" ]]; do
   INSTANCE_ADDRESS=$(ec2-describe-instances $INSTANCE_ID \
     | awk '/INSTANCE/ { print $4 }')
 done
