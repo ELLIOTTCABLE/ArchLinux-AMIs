@@ -46,7 +46,7 @@ PACKS=" \
   util-linux-ng net-tools kbd sysvinit initscripts iputils less \
   libgcrypt licenses logrotate \
   lzo2 module-init-tools nano pacman procinfo \
-  procps psmisc glib2 eventlog libcap syslog-ng tar"
+  procps psmisc syslog-ng tar"
 
 VERSION="8"
 ARCH="x86_64"
