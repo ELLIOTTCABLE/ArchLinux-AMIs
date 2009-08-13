@@ -15,7 +15,7 @@ ssh -o "StrictHostKeyChecking no" root@$INSTANCE_ADDRESS \
 
 # Install the packages we’ve removed
 pacman --noconfirm -S sudo wget which vi tar nano lzo2 procinfo libgcrypt \
-  less groff gawk
+  less groff gawk file
 
 shutdown -h now && exit
 
