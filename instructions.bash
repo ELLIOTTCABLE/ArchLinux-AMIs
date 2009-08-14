@@ -36,9 +36,11 @@ mv ec2-ami-tools-* ec2-ami-tools
 export EC2_AMITOOL_HOME="$(pwd)/ec2-ami-tools"
 
 ### Desired
-# openssh - necessary to SSH in
 # curl - needed for the initscripts that download the pubkey
 ### Required
+# openssh - necessary to SSH in
+# dcron - cron scheduling
+# dhcpcd - for network access
 # util-linux-ng - Piles of UNIX tools I don’t want to get rid of (see:
 #   http://freshmeat.net/projects/util-linux/)
 # initscripts - necessary for system boot
