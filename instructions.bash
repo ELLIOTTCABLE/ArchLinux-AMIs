@@ -1,3 +1,4 @@
+BUNDLING_VOLUME="vol-5b698332"
 BUNDLING_INSTANCE_ID=$(ec2-run-instances --group Void --key Void --monitoring \
   --instance-type m1.xlarge ami-1b799e72 | awk '/INSTANCE/ { print $2 }')
 BUNDLING_INSTANCE_ADDRESS="pending"
@@ -7,6 +8,8 @@ while [[ $BUNDLING_INSTANCE_ADDRESS == "pending" ]]; do
 done
 
 sleep 25
+
+ec2-attach-volume $BUNDLING_VOLUME -i $BUNDLING_INSTANCE_ID -d /dev/sdh
 
 scp -o "StrictHostKeyChecking no" -i ~/.ec2/id_rsa-Void \
   ~/.ec2/*.pem \
@@ -27,7 +30,7 @@ pacman --noconfirm -S ruby unzip rsync devtools lzma cpio
 
 pacman --noconfirm -Sc
 
-mount /dev/sdb /mnt
+mount /dev/sdh /mnt
 
 wget http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.zip
 unzip ec2-ami-tools.zip
