@@ -26,7 +26,7 @@ ssh root@$BUNDLING_INSTANCE_ADDRESS \
 pacman --noconfirm -Syu
 pacman --noconfirm -Syu
 
-pacman --noconfirm -S ruby unzip rsync devtools lzma cpio
+pacman --noconfirm -S ruby unzip rsync lzma cpio
 
 pacman --noconfirm -Sc
 
@@ -113,7 +113,27 @@ Include = /etc/pacman.d/mirrorlist
 
 EOF
 
-mkarchroot -C pacman.conf $ROOT $PACKS
+mkdir -p "$ROOT"
+mkdir "$ROOT/etc/"
+
+mkdir "$ROOT/sys" ; mount -t sysfs sysfs "$ROOT/sys"
+mkdir "$ROOT/proc" ; mount -t proc proc "$ROOT/proc"
+mkdir "$ROOT/dev" ; mount -o bind /dev "$ROOT/dev"
+
+mkdir -p "$ROOT/var/lib/pacman/"
+mkdir -p "$ROOT/var/cache/pacman" ; mount -o bind {,"$ROOT"}"/var/cache/pacman"
+pacman --noconfirm --noprogressbar --config=pacman.conf \
+  --root="$ROOT" --cachedir=/var/cache/pacman/pkg \
+  -Sy
+pacman --noconfirm --noprogressbar --config=pacman.conf \
+  --root="$ROOT" --cachedir=/var/cache/pacman/pkg \
+  -S $PACKS
+
+ldconfig -r "$ROOT"
+
+# Do we need to do this?
+cp {,"$ROOT/etc/"}"pacman.conf"
+cp {,"$ROOT"}"/etc/locale.gen"
 
 cat <<EOF > $ROOT/etc/rc.conf
 #
@@ -186,6 +206,8 @@ touch $ROOT/root/firstboot
 cd $ROOT/lib/modules
 curl -s http://static.iphash.net/ec2/$ARCH/2.6.21.7-2.fc8xen.cpio.lzma | lzma -d | cpio -idmv
 cd -
+
+umount "$ROOT/"{"proc","sys","dev","var/cache/pacman"}
 
 ./ec2-ami-tools/bin/ec2-bundle-vol \
   --cert /tmp/cert-*.pem --privatekey /tmp/pk-*.pem \
