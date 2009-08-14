@@ -64,7 +64,7 @@ PACKS=" \
   module-init-tools pacman \
   procps psmisc syslog-ng"
 
-VERSION="15"
+VERSION="16"
 ARCH="x86_64"
 NAME="ArchLinux-$(date +%G%m%d)-$ARCH-$VERSION"
 ROOT="/mnt/$NAME.root"
