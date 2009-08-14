@@ -1,5 +1,5 @@
 BUNDLING_VOLUME="vol-5b698332"
-BUNDLING_INSTANCE_ID=$(ec2-run-instances --group Void --key Void --monitoring \
+BUNDLING_INSTANCE_ID=$(ec2-run-instances --group Void --key Void \
   --instance-type m1.xlarge ami-1b799e72 | awk '/INSTANCE/ { print $2 }')
 BUNDLING_INSTANCE_ADDRESS="pending"
 while [[ $BUNDLING_INSTANCE_ADDRESS == "pending" ]]; do

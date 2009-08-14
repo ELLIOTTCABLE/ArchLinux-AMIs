@@ -2,7 +2,7 @@ rm -rf /Users/elliottcable/.ssh/known_hosts
 
 MANIFEST=
 AMI_ID=$(ec2-register arch-linux/$MANIFEST | awk '/IMAGE/ { print $2 }')
-INSTANCE_ID=$(ec2-run-instances --group Void --key Void --monitoring \
+INSTANCE_ID=$(ec2-run-instances --group Void --key Void \
   --instance-type m1.large $AMI_ID | awk '/INSTANCE/ { print $2 }')
 INSTANCE_ADDRESS="pending"
 while [[ $INSTANCE_ADDRESS == "pending" ]]; do
