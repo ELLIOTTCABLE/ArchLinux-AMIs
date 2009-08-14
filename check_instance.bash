@@ -17,6 +17,6 @@ ssh -o "StrictHostKeyChecking no" root@$INSTANCE_ADDRESS \
 pacman --noconfirm -S sudo wget which vi tar nano lzo2 procinfo libgcrypt \
   less groff file diffutils dialog dbus-core dash cpio
 
-shutdown -h now && exit
+sleep 1 ; shutdown -h now && exit
 
 ec2-deregister $AMI_ID
