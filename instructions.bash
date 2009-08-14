@@ -114,14 +114,6 @@ EOF
 
 mkarchroot -C pacman.conf $ROOT $PACKS
 
-chmod 666 $ROOT/dev/null
-mknod -m 666 $ROOT/dev/random c 1 8
-mknod -m 666 $ROOT/dev/urandom c 1 9
-mknod -m 600 $ROOT/dev/console c 5 1
-mkdir -m 755 $ROOT/dev/pts
-mkdir -m 1777 $ROOT/dev/shm
-
-
 cat <<EOF > $ROOT/etc/rc.conf
 #
 # /etc/rc.conf - Main Configuration for Arch Linux
