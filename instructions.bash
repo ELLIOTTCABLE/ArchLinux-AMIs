@@ -64,9 +64,9 @@ PACKS=" \
   module-init-tools pacman \
   procps psmisc syslog-ng"
 
-VERSION="17"
+RELEASE="17"
 ARCH="x86_64"
-NAME="ArchLinux-$(date +%G%m%d)-$ARCH-$VERSION"
+NAME="ArchLinux-$(date +%G%m%d)-$ARCH-$RELEASE"
 ROOT="/mnt/$NAME.root"
 
 cat <<EOF > fstab
