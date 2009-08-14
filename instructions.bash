@@ -57,7 +57,7 @@ PACKS=" \
   gmp \
   openssh \
   curl binutils bzip2 cpio filesystem dcron dhcpcd \
-   \
+  gawk \
   util-linux-ng initscripts iputils \
   licenses logrotate \
   module-init-tools pacman \
