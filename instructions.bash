@@ -55,7 +55,7 @@ export EC2_AMITOOL_HOME="$(pwd)/ec2-ami-tools"
 PACKS=" \
   gmp \
   openssh \
-  curl binutils bzip2 cpio dash dbus-core dcron dhcpcd \
+  curl binutils bzip2 cpio dash expat filesystem dcron dhcpcd \
    \
   util-linux-ng initscripts iputils \
   licenses logrotate \
@@ -63,6 +63,7 @@ PACKS=" \
   procps psmisc syslog-ng"
 
 VERSION="14"
+
 ARCH="x86_64"
 NAME="ArchLinux-$(date +%G%m%d)-$ARCH-$VERSION"
 ROOT="/mnt/$NAME.root"
