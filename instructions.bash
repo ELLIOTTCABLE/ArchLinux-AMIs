@@ -7,9 +7,9 @@ while [[ $BUNDLING_INSTANCE_ADDRESS == "pending" ]]; do
     | awk '/INSTANCE/ { print $4 }')
 done
 
-sleep 25
-
 ec2-attach-volume $BUNDLING_VOLUME -i $BUNDLING_INSTANCE_ID -d /dev/sdh
+
+sleep 25
 
 scp -o "StrictHostKeyChecking no" -i ~/.ec2/id_rsa-Void \
   ~/.ec2/*.pem \
@@ -30,7 +30,7 @@ pacman --noconfirm -S ruby unzip rsync devtools lzma cpio
 
 pacman --noconfirm -Sc
 
-mount /dev/sdh /mnt
+mount -t ext3 /dev/sdh /mnt
 
 wget http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.zip
 unzip ec2-ami-tools.zip
