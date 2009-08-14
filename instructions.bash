@@ -42,6 +42,7 @@ export EC2_AMITOOL_HOME="$(pwd)/ec2-ami-tools"
 # filesystem - base filesystem package
 # dcron - cron scheduling
 # dhcpcd - for network access
+# gawk - alternative dependency for initscripts
 # util-linux-ng - Piles of UNIX tools I don’t want to get rid of (see:
 #   http://freshmeat.net/projects/util-linux/)
 # initscripts - necessary for system boot
