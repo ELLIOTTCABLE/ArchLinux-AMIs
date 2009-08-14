@@ -67,7 +67,7 @@ PACKS=" \
   module-init-tools pacman \
   procps psmisc syslog-ng"
 
-RELEASE="18"
+RELEASE="19"
 ARCH="x86_64"
 NAME="ArchLinux-$(date +%G%m%d)-$ARCH-$RELEASE"
 ROOT="/mnt/$NAME.root"
