@@ -61,9 +61,10 @@ PACKS="bash coreutils openssh curl filesystem dcron dhcpcd gawk \
   util-linux-ng initscripts iputils licenses logrotate module-init-tools \
   pacman procps psmisc syslog-ng"
 
-RELEASE="22"
+TYPE="Nucleus"
+RELEASE="1"
 ARCH="x86_64"
-NAME="ArchLinux-$(date +%G%m%d)-$ARCH-$RELEASE"
+NAME="ArchLinux-$ARCH-$TYPE-$RELEASE"
 ROOT="/mnt/$NAME.root"
 
 cat <<EOF > fstab
