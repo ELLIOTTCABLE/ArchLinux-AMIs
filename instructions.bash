@@ -57,8 +57,8 @@ export EC2_AMITOOL_HOME="$(pwd)/ec2-ami-tools"
 # procps - ps, top, kill
 # psmisc - killall (initscripts)
 # syslog-ng - system logging
-PACKS=" \
-  \
+PACKS="bash \
+  coreutils \
   openssh \
   curl filesystem dcron dhcpcd \
   gawk \
