@@ -60,7 +60,7 @@ export EC2_AMITOOL_HOME="$(pwd)/ec2-ami-tools"
 PACKS=" \
   gmp \
   openssh \
-  curl binutils filesystem dcron dhcpcd \
+  curl filesystem dcron dhcpcd \
   gawk \
   util-linux-ng initscripts iputils \
   licenses logrotate \
