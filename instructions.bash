@@ -39,6 +39,7 @@ export EC2_AMITOOL_HOME="$(pwd)/ec2-ami-tools"
 # curl - needed for the initscripts that download the pubkey
 ### Required
 # openssh - necessary to SSH in
+# filesystem - base filesystem package
 # dcron - cron scheduling
 # dhcpcd - for network access
 # util-linux-ng - Piles of UNIX tools I don’t want to get rid of (see:
@@ -62,8 +63,7 @@ PACKS=" \
   module-init-tools pacman \
   procps psmisc syslog-ng"
 
-VERSION="14"
-
+VERSION="15"
 ARCH="x86_64"
 NAME="ArchLinux-$(date +%G%m%d)-$ARCH-$VERSION"
 ROOT="/mnt/$NAME.root"
