@@ -9,7 +9,7 @@ done
 
 ec2-attach-volume $BUNDLING_VOLUME -i $BUNDLING_INSTANCE_ID -d /dev/sdh
 
-sleep 25
+sleep 60
 
 scp -o "StrictHostKeyChecking no" -i ~/.ec2/id_rsa-Void \
   ~/.ec2/*.pem \
