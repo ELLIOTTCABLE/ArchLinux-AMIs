@@ -41,6 +41,8 @@ export EC2_AMITOOL_HOME="$(pwd)/ec2-ami-tools"
 ### Desired
 # curl - needed for the initscripts that download the pubkey
 ### Required
+# bash - shell for initscripts and remote access
+# coreutils - basic Linux utilities
 # openssh - necessary to SSH in
 # filesystem - base filesystem package
 # dcron - cron scheduling
