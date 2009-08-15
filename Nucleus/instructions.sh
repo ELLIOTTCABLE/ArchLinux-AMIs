@@ -64,6 +64,7 @@ PACKS="bash coreutils openssh curl filesystem dcron dhcpcd gawk \
 TYPE="Nucleus"
 RELEASE="1"
 ARCH="x86_64"
+AARCH="x86_64"
 NAME="ArchLinux-$ARCH-$TYPE-$RELEASE"
 ROOT="/mnt/$NAME.root"
 
@@ -91,24 +92,24 @@ HoldPkg     = pacman glibc
 SyncFirst   = pacman
 
 [core]
-Server = http://mirror.cs.vt.edu/pub/ArchLinux/\$repo/os/$ARCH
-Server = http://mirror.umoss.org/archlinux/\$repo/os/$ARCH
-Server = http://mirror.rit.edu/archlinux/\$repo/os/$ARCH
-Server = http://mirrors.gigenet.com/archlinux/\$repo/os/$ARCH
+Server = http://mirror.cs.vt.edu/pub/ArchLinux/\$repo/os/$AARCH
+Server = http://mirror.umoss.org/archlinux/\$repo/os/$AARCH
+Server = http://mirror.rit.edu/archlinux/\$repo/os/$AARCH
+Server = http://mirrors.gigenet.com/archlinux/\$repo/os/$AARCH
 Include = /etc/pacman.d/mirrorlist
 
 [extra]
-Server = http://mirror.cs.vt.edu/pub/ArchLinux/\$repo/os/$ARCH
-Server = http://mirror.umoss.org/archlinux/\$repo/os/$ARCH
-Server = http://mirror.rit.edu/archlinux/\$repo/os/$ARCH
-Server = http://mirrors.gigenet.com/archlinux/\$repo/os/$ARCH
+Server = http://mirror.cs.vt.edu/pub/ArchLinux/\$repo/os/$AARCH
+Server = http://mirror.umoss.org/archlinux/\$repo/os/$AARCH
+Server = http://mirror.rit.edu/archlinux/\$repo/os/$AARCH
+Server = http://mirrors.gigenet.com/archlinux/\$repo/os/$AARCH
 Include = /etc/pacman.d/mirrorlist
 
 [community]
-Server = http://mirror.cs.vt.edu/pub/ArchLinux/\$repo/os/$ARCH
-Server = http://mirror.umoss.org/archlinux/\$repo/os/$ARCH
-Server = http://mirror.rit.edu/archlinux/\$repo/os/$ARCH
-Server = http://mirrors.gigenet.com/archlinux/\$repo/os/$ARCH
+Server = http://mirror.cs.vt.edu/pub/ArchLinux/\$repo/os/$AARCH
+Server = http://mirror.umoss.org/archlinux/\$repo/os/$AARCH
+Server = http://mirror.rit.edu/archlinux/\$repo/os/$AARCH
+Server = http://mirrors.gigenet.com/archlinux/\$repo/os/$AARCH
 Include = /etc/pacman.d/mirrorlist
 
 EOF
