@@ -64,7 +64,7 @@ PACKS="bash coreutils openssh curl filesystem dcron dhcpcd gawk \
   pacman procps psmisc syslog-ng"
 
 TYPE="Nucleus"
-RELEASE="1"
+RELEASE="2"
 ARCH="x86_64"
 AARCH="x86_64"
 NAME="ArchLinux-$ARCH-$TYPE-$RELEASE"
