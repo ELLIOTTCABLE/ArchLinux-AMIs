@@ -1,19 +1,3 @@
-# To create an Arch AMI from scratch, inside another Arch instance
-pacman --noconfirm -Syu
-pacman --noconfirm -Syu
-
-pacman --noconfirm -S ruby unzip rsync lzma cpio
-
-pacman --noconfirm -Sc
-
-mount -t ext3 /dev/sda2 /mnt
-
-wget http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.zip
-unzip ec2-ami-tools.zip
-mv ec2-ami-tools-* ec2-ami-tools
-
-export EC2_AMITOOL_HOME="$(pwd)/ec2-ami-tools"
-
 ### Desired
 # curl - needed for the initscripts that download the pubkey
 ### Required

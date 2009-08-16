@@ -51,6 +51,30 @@ start() {
       root@$HOST_IADDRESS:/tmp/
   done
   
+  case $HOST_ARCH in
+  "i386") EPHEMERAL_STORE='/dev/sda2';;
+  "x86_64") EPHEMERAL_STORE='/dev/sdb' ;;
+  esac
+  
+	cat <<-SETUP | ssh -o "StrictHostKeyChecking no" -i "id_rsa-$HOST_KEY" root@$HOST_IADDRESS
+		pacman --noconfirm -Syu
+		pacman --noconfirm -Syu
+		
+		pacman --noconfirm -S ruby unzip rsync lzma cpio
+		
+		pacman --noconfirm -Sc
+		
+		mount -t ext3 $EPHEMERAL_STORE /mnt
+		
+		wget http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.zip
+		unzip ec2-ami-tools.zip
+		mv ec2-ami-tools-* ec2-ami-tools
+		
+		cat <<'PROFILE' > /root/.profile
+			export EC2_AMITOOL_HOME="\$(pwd)/ec2-ami-tools"
+		PROFILE
+	SETUP
+  
   echo "** ${HOST_IID}[${HOST_AMI}@${HOST_ITYPE}] launched at ${HOST_IADDRESS}"
 }
 
