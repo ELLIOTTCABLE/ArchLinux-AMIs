@@ -58,6 +58,7 @@ stop() {
   ec2-terminate-instances $(get)
   ec2-delete-group $HOST_GROUP
   ec2-delete-keypair $HOST_KEY
+  rm -f "id_rsa-$HOST_KEY"
 }
 
 get() {
