@@ -41,6 +41,7 @@ start() {
   
   false
   until [[ $? == 0 ]]; do
+    sleep 5
     # TODO: Get rid of these file requirements; take envvars if possible
     scp -o "StrictHostKeyChecking no" -i "id_rsa-$HOST_KEY" \
       ~/.ec2/*.pem \
