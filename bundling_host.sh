@@ -18,20 +18,20 @@ fi
 start() {
   HOST_GROUPID=$(ec2-describe-group | awk '$1 == "GROUP" && $3 == "'$HOST_GROUP'" { print $3 }')
   if [[ -z $HOST_GROUPID ]]; then
-    ec2-add-group $HOST_GROUP -d "Instances dedicated to bundling AMIs"
-    ec2-authorize $HOST_GROUP --protocol tcp --port-range 22
+    ec2-add-group $HOST_GROUP -d "Instances dedicated to bundling AMIs" || exit 1
+    ec2-authorize $HOST_GROUP --protocol tcp --port-range 22 || exit 1
     echo "-- Added security group: $HOST_GROUP"
   fi
   
   HOST_KEYID=$(ec2-describe-keypairs | awk '$1 == "KEYPAIR" && $2 == "'$HOST_KEY'" { print $2 }')
   if [[ -z $HOST_KEYID ]]; then
-    ec2-add-keypair $HOST_KEY > "id_rsa-$HOST_KEY"
-    chmod 400 "id_rsa-$HOST_KEY"
+    ec2-add-keypair $HOST_KEY > "id_rsa-$HOST_KEY" || exit 1
+    chmod 400 "id_rsa-$HOST_KEY" || exit 1
     echo "-- Added keypair: $HOST_KEY"
   fi
   
   HOST_IID=$(ec2-run-instances $HOST_AMI --group $HOST_GROUP --key $HOST_KEY \
-    --instance-type $HOST_ITYPE | awk '/INSTANCE/ { print $2 }')
+    --instance-type $HOST_ITYPE | awk '/INSTANCE/ { print $2 }')  || exit 1
   
   HOST_IADDRESS="pending"
   while [[ $HOST_IADDRESS == "pending" ]]; do
@@ -60,7 +60,9 @@ stop() {
 }
 
 get() {
-  ec2-describe-instances --show-empty-fields | awk '$1 == "INSTANCE" && $6 = "running" && $7 == "bundling-host" && $10 == "'$HOST_ITYPE'" { print $2; exit }'
+  ec2-describe-instances --show-empty-fields \
+    | awk '$1 == "INSTANCE" && $6 = "running" && $7 == "bundling-host" && \
+      $10 == "'$HOST_ITYPE'" { print $2; exit }' || exit 1
 }
 
 usage() {
