@@ -54,9 +54,9 @@ start() {
 }
 
 stop() {
-  ec2-terminate-instances $(get) &&
-    ec2-delete-group $HOST_GROUP &&
-    ec2-delete-keypair $HOST_KEY
+  ec2-terminate-instances $(get)
+  ec2-delete-group $HOST_GROUP
+  ec2-delete-keypair $HOST_KEY
 }
 
 get() {
