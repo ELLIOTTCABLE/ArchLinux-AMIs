@@ -1,24 +1,3 @@
-BUNDLING_INSTANCE_ID=$(ec2-run-instances --group Void --key Void \
-  --instance-type m1.xlarge ami-1b799e72 | awk '/INSTANCE/ { print $2 }')
-BUNDLING_INSTANCE_ADDRESS="pending"
-while [[ $BUNDLING_INSTANCE_ADDRESS == "pending" ]]; do
-  BUNDLING_INSTANCE_ADDRESS=$(ec2-describe-instances $BUNDLING_INSTANCE_ID \
-    | awk '/INSTANCE/ { print $4 }')
-done
-
-sleep 60
-
-scp -o "StrictHostKeyChecking no" -i ~/.ec2/id_rsa-Void \
-  ~/.ec2/*.pem \
-  ~/.ec2/account_number \
-  ~/.ec2/access_key \
-  ~/.ec2/secret_key \
-  root@$BUNDLING_INSTANCE_ADDRESS:/tmp/
-
-ssh root@$BUNDLING_INSTANCE_ADDRESS \
-  -i ~/.ec2/id_rsa-Void
-
-
 # To create an Arch AMI from scratch, inside another Arch instance
 pacman --noconfirm -Syu
 pacman --noconfirm -Syu
