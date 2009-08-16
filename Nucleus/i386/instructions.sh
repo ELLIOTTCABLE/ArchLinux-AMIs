@@ -1,4 +1,3 @@
-BUNDLING_VOLUME="vol-5b698332"
 BUNDLING_INSTANCE_ID=$(ec2-run-instances --group Void --key Void \
   --instance-type m1.small ami-05799e6c | awk '/INSTANCE/ { print $2 }')
 BUNDLING_INSTANCE_ADDRESS="pending"
@@ -6,8 +5,6 @@ while [[ $BUNDLING_INSTANCE_ADDRESS == "pending" ]]; do
   BUNDLING_INSTANCE_ADDRESS=$(ec2-describe-instances $BUNDLING_INSTANCE_ID \
     | awk '/INSTANCE/ { print $4 }')
 done
-
-ec2-attach-volume $BUNDLING_VOLUME -i $BUNDLING_INSTANCE_ID -d /dev/sdh
 
 sleep 60
 
@@ -30,7 +27,7 @@ pacman --noconfirm -S ruby unzip rsync lzma cpio
 
 pacman --noconfirm -Sc
 
-mount -t ext3 /dev/sdh /mnt
+mount -t ext3 /dev/sda2 /mnt
 
 wget http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.zip
 unzip ec2-ami-tools.zip
