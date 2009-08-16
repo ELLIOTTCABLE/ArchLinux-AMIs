@@ -62,7 +62,7 @@ stop() {
 
 get() {
   ec2-describe-instances --show-empty-fields \
-    | awk '$1 == "INSTANCE" && $6 = "running" && $7 == "bundling-host" && \
+    | awk '$1 == "INSTANCE" && $6 == "running" && $7 == "bundling-host" && \
       $10 == "'$HOST_ITYPE'" { print $2; exit }' || exit 1
 }
 
