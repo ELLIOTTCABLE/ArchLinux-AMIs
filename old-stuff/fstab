@@ -1,0 +1,14 @@
+/dev/sda1 /     ext3    defaults 1 1
+#/dev/sda2 /mnt ext3    defaults 0 0
+/dev/sda3 swap  swap    defaults 0 0
+#/dev/sdb /mnt/store-1 ext3    defaults 0 0
+#/dev/sdc /mnt/store-2 ext3    defaults 0 0
+#/dev/sdd /mnt/store-3 ext3    defaults 0 0
+#/dev/sde /mnt/store-4 ext3    defaults 0 0
+
+### EBS Volumes ###
+
+none      /proc proc    defaults 0 0
+none      /sys  sysfs   defaults 0 0
+none /dev/pts devpts gid=5,mode=620 0 0
+none /dev/shm tmpfs defaults 0 0
