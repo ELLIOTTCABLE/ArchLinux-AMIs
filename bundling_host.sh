@@ -16,26 +16,26 @@ else
 fi
 
 start() {
-  HOST_GROUPID=$(ec2-describe-group | awk '$1 == "GROUP" && $3 == "'$HOST_GROUP'" { print $3 }')
+  HOST_GROUPID=$(ec2-describe-group --show-empty-fields | awk '$1 == "GROUP" && $3 == "'$HOST_GROUP'" { print $3 }')
   if [[ -z $HOST_GROUPID ]]; then
-    ec2-add-group $HOST_GROUP -d "Instances dedicated to bundling AMIs" || exit 1
-    ec2-authorize $HOST_GROUP --protocol tcp --port-range 22 || exit 1
+    ec2-add-group --show-empty-fields $HOST_GROUP -d "Instances dedicated to bundling AMIs" || exit 1
+    ec2-authorize --show-empty-fields $HOST_GROUP --protocol tcp --port-range 22 || exit 1
     echo "-- Added security group: $HOST_GROUP"
   fi
   
-  HOST_KEYID=$(ec2-describe-keypairs | awk '$1 == "KEYPAIR" && $2 == "'$HOST_KEY'" { print $2 }')
+  HOST_KEYID=$(ec2-describe-keypairs --show-empty-fields | awk '$1 == "KEYPAIR" && $2 == "'$HOST_KEY'" { print $2 }')
   if [[ -z $HOST_KEYID ]]; then
-    ec2-add-keypair $HOST_KEY > "id_rsa-$HOST_KEY" || exit 1
+    ec2-add-keypair --show-empty-fields $HOST_KEY > "id_rsa-$HOST_KEY" || exit 1
     chmod 400 "id_rsa-$HOST_KEY" || exit 1
     echo "-- Added keypair: $HOST_KEY"
   fi
   
-  HOST_IID=$(ec2-run-instances $HOST_AMI --group $HOST_GROUP --key $HOST_KEY \
+  HOST_IID=$(ec2-run-instances --show-empty-fields $HOST_AMI --group $HOST_GROUP --key $HOST_KEY \
     --instance-type $HOST_ITYPE | awk '$1 == "INSTANCE" { print $2 }')  || exit 1
   
   HOST_IADDRESS="pending"
   while [[ $HOST_IADDRESS == "pending" ]]; do
-    HOST_IADDRESS=$(ec2-describe-instances $HOST_IID \
+    HOST_IADDRESS=$(ec2-describe-instances --show-empty-fields $HOST_IID \
       | awk '$1 == "INSTANCE" { print $4 }')
   done
   
@@ -79,9 +79,9 @@ start() {
 }
 
 stop() {
-  ec2-terminate-instances $(get)
-  ec2-delete-group $HOST_GROUP
-  ec2-delete-keypair $HOST_KEY
+  ec2-terminate-instances --show-empty-fields $(get)
+  ec2-delete-group --show-empty-fields $HOST_GROUP
+  ec2-delete-keypair --show-empty-fields $HOST_KEY
   rm -f "id_rsa-$HOST_KEY"
 }
 
