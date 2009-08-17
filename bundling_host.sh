@@ -52,8 +52,8 @@ start() {
   done
   
   case $HOST_ARCH in
-  "i386") EPHEMERAL_STORE='/dev/sda2';;
-  "x86_64") EPHEMERAL_STORE='/dev/sdb' ;;
+  "i386")   EPHEMERAL_STORE='/dev/sda2' ;;
+  "x86_64") EPHEMERAL_STORE='/dev/sdb'  ;;
   esac
   
 	cat <<-SETUP | ssh -o "StrictHostKeyChecking no" -i "id_rsa-$HOST_KEY" root@$HOST_IADDRESS
