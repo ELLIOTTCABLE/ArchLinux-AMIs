@@ -7,7 +7,7 @@ if [[ $2 == "x86_64" ]]; then
   HOST_ARCH="x86_64"
   HOST_EC2_ARCH="x86_64"
   HOST_AMI="ami-1b799e72"
-  HOST_ITYPE="m1.xlarge"
+  HOST_ITYPE="m1.large"
 else
   HOST_ARCH="i386"
   HOST_EC2_ARCH="i686"
