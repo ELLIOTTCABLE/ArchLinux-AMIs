@@ -31,12 +31,12 @@ start() {
   fi
   
   HOST_IID=$(ec2-run-instances $HOST_AMI --group $HOST_GROUP --key $HOST_KEY \
-    --instance-type $HOST_ITYPE | awk '$1 == INSTANCE { print $2 }')  || exit 1
+    --instance-type $HOST_ITYPE | awk '$1 == "INSTANCE" { print $2 }')  || exit 1
   
   HOST_IADDRESS="pending"
   while [[ $HOST_IADDRESS == "pending" ]]; do
     HOST_IADDRESS=$(ec2-describe-instances $HOST_IID \
-      | awk '$1 == INSTANCE { print $4 }')
+      | awk '$1 == "INSTANCE" { print $4 }')
   done
   
   false
