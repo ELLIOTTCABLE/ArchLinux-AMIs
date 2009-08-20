@@ -52,6 +52,8 @@ mkdir "$ROOT/sys/"  ; mount -t sysfs sysfs "$ROOT/sys"
 mkdir "$ROOT/proc/" ; mount -t proc   proc "$ROOT/proc"
 mkdir "$ROOT/dev/"  ; mount -o bind "/dev" "$ROOT/dev"
 
+mkdir -p "$ROOT/usr/aws/ec2/"
+
 mkdir -p "$ROOT/var/lib/pacman/"
 mkdir -p "$ROOT/var/cache/pacman/" ; mount -o bind {,"$ROOT"}"/var/cache/pacman"
 pacman --noconfirm --noprogressbar --config="/etc/pacman.conf" \
@@ -103,10 +105,12 @@ EOF
 
 cat <<EOF >> $ROOT/etc/rc.local
 killall nash-hotplug
-if [ -f /root/firstboot ]; then
+if [ ! -f /usr/aws/ec2/.instantiated ]; then
   mkdir /root/.ssh
   curl --retry 3 --retry-delay 5 --silent --fail -o /root/.ssh/authorized_keys http://169.254.169.254/1.0/meta-data/public-keys/0/openssh-key
-  rm -f /root/user-data /root/firstboot
+  
+  mkdir -p /usr/aws/ec2/
+  touch /usr/aws/ec2/.instantiated
 fi
 
 EOF
@@ -128,8 +132,6 @@ EOF
 
 sed -i "s/#PasswordAuthentication yes/PasswordAuthentication no/" $ROOT/etc/ssh/sshd_config
 sed -i "s/#UseDNS yes/UseDNS no/" $ROOT/etc/ssh/sshd_config
-
-touch $ROOT/root/firstboot
 
 cd $ROOT/lib/modules
 curl -s http://static.iphash.net/ec2/$ARCH/2.6.21.7-2.fc8xen.cpio.lzma | lzma -d | cpio -idmv
