@@ -106,9 +106,6 @@ killall nash-hotplug
 if [ -f /root/firstboot ]; then
   mkdir /root/.ssh
   curl --retry 3 --retry-delay 5 --silent --fail -o /root/.ssh/authorized_keys http://169.254.169.254/1.0/meta-data/public-keys/0/openssh-key
-  if curl --retry 3 --retry-delay 5 --silent --fail -o /root/user-data http://169.254.169.254/1.0/user-data; then
-     bash /root/user-data
-  fi
   rm -f /root/user-data /root/firstboot
 fi
 
