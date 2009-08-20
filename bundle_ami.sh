@@ -4,6 +4,8 @@ HOST_GROUP="bundling-host"
 KEY="bundle-testing"
 GROUP="bundle-testing"
 
+BUCKET="arch-linux"
+
 if [[ $2 == "x86_64" ]]; then
   HOST_ARCH="x86_64"
   HOST_EC2_ARCH="x86_64"

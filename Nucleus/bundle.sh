@@ -148,7 +148,7 @@ umount "$ROOT/"{"proc","sys","dev","var/cache/pacman"}
 
 ./ec2-ami-tools/bin/ec2-upload-bundle \
   --access-key "$(cat /tmp/access_key)" --secret-key "$(cat /tmp/secret_key)" \
-  --bucket "arch-linux" \
+  --bucket $BUCKET \
   --manifest "/mnt/${NAME}.manifest.xml" --batch --debug --retry
 
 rm -rf /mnt/$NAME*
