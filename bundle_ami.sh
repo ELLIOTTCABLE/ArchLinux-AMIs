@@ -48,5 +48,9 @@ until [[ $? == 0 ]]; do
 		ARCH="$ARCH"
 		EC2_ARCH="$EC2_ARCH"
 		ITYPE="$ITYPE"
+		AKI="$AKI"
+		ARI="$ARI"
 	SETUP
 done
+
+
