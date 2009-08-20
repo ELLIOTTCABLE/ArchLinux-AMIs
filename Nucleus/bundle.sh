@@ -1,3 +1,5 @@
+RELEASE="0a"
+
 ### Desired
 # curl - needed for the initscripts that download the pubkey
 ### Required
@@ -24,7 +26,6 @@ PACKS="bash coreutils openssh curl filesystem dcron dhcpcd gawk \
   pacman procps psmisc syslog-ng"
 
 TYPE="Nucleus"
-RELEASE="3"
 NAME="ArchLinux-$ARCH-$TYPE-$RELEASE"
 ROOT="/mnt/$NAME.root"
 
