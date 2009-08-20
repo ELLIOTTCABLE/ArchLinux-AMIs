@@ -48,12 +48,12 @@ EOF
 
 mkdir -p "$ROOT"
 
-mkdir "$ROOT/sys" ; mount -t sysfs sysfs "$ROOT/sys"
-mkdir "$ROOT/proc" ; mount -t proc proc "$ROOT/proc"
-mkdir "$ROOT/dev" ; mount -o bind /dev "$ROOT/dev"
+mkdir "$ROOT/sys/"  ; mount -t sysfs sysfs "$ROOT/sys"
+mkdir "$ROOT/proc/" ; mount -t proc   proc "$ROOT/proc"
+mkdir "$ROOT/dev/"  ; mount -o bind "/dev" "$ROOT/dev"
 
 mkdir -p "$ROOT/var/lib/pacman/"
-mkdir -p "$ROOT/var/cache/pacman" ; mount -o bind {,"$ROOT"}"/var/cache/pacman"
+mkdir -p "$ROOT/var/cache/pacman/" ; mount -o bind {,"$ROOT"}"/var/cache/pacman"
 pacman --noconfirm --noprogressbar --config="/etc/pacman.conf" \
   --root="$ROOT" --cachedir=/var/cache/pacman/pkg \
   -Sy
