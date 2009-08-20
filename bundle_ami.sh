@@ -36,11 +36,8 @@ while [[ $HOST_IADDRESS == "(nil)" ]]; do
     | awk '$1 == "INSTANCE" { print $4 }')
 done
 
-false
-until [[ $? == 0 ]]; do
-  sleep 5
-  
-	cat "-" "./$1/bundle.sh" <<-SETUP | ssh -o "StrictHostKeyChecking no" -i "id_rsa-$HOST_KEY" root@$HOST_IADDRESS
+NAME=$(
+	cat "-" "./$1/bundle.sh" <<-SETUP | ssh -o "StrictHostKeyChecking no" -i "id_rsa-$HOST_KEY" root@$HOST_IADDRESS | tail -n1
 		source /root/.profile
 		
 		KEY="$KEY"
@@ -55,5 +52,4 @@ until [[ $? == 0 ]]; do
 		AKI="$AKI"
 		ARI="$ARI"
 	SETUP
-done
-
+)
