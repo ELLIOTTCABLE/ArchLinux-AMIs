@@ -65,8 +65,6 @@ pacman --noconfirm --noprogressbar --config="/etc/pacman.conf" \
 
 ldconfig -r "$ROOT"
 
-sed -i -r 's/#(en_US\.UTF-8)/\1/' $ROOT/etc/locale.gen
-
 cat <<EOF > $ROOT/etc/rc.conf
 #
 # /etc/rc.conf - Main Configuration for Arch Linux
@@ -129,6 +127,8 @@ ca::ctrlaltdel:/sbin/shutdown -t3 -r now
 # End of file
 
 EOF
+
+sed -i -r 's/#(en_US\.UTF-8)/\1/' $ROOT/etc/locale.gen
 
 sed -i "s/#PasswordAuthentication yes/PasswordAuthentication no/" $ROOT/etc/ssh/sshd_config
 sed -i "s/#UseDNS yes/UseDNS no/" $ROOT/etc/ssh/sshd_config
