@@ -130,6 +130,7 @@ EOF
 
 sed -i -r 's/#(en_US\.UTF-8)/\1/' $ROOT/etc/locale.gen
 sed -i -r "s/#(UseDNS|PasswordAuthentication) yes/\1 no/" $ROOT/etc/ssh/sshd_config
+sed -i -r "s/#(Server)/\1/" $ROOT/etc/pacman.d/mirrorlist
 
 cd $ROOT/lib/modules
 curl -s http://static.iphash.net/ec2/$ARCH/2.6.21.7-2.fc8xen.cpio.lzma | lzma -d | cpio -idmv
