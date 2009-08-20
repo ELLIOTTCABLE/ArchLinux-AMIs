@@ -38,7 +38,7 @@ false
 until [[ $? == 0 ]]; do
   sleep 5
   
-	cat "-" "./$1/$ARCH/bundle.sh" <<-SETUP | ssh -o "StrictHostKeyChecking no" -i "id_rsa-$HOST_KEY" root@$HOST_IADDRESS
+	cat "-" "./$1/bundle.sh" <<-SETUP | ssh -o "StrictHostKeyChecking no" -i "id_rsa-$HOST_KEY" root@$HOST_IADDRESS
 		KEY="$KEY"
 		GROUP="$GROUP"
 		HOST_ARCH="$HOST_ARCH"
