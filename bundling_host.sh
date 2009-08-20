@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+AVAILABILITY_ZONE="us-east-1a"
+
 HOST_KEY="bundling-host"
 HOST_GROUP="bundling-host"
 
@@ -37,6 +39,7 @@ start() {
   
   HOST_IID=$(ec2-run-instances --show-empty-fields $HOST_AMI \
     --group $HOST_GROUP --key $HOST_KEY --instance-type $HOST_ITYPE \
+    --availability-zone $AVAILABILITY_ZONE \
     | awk '$1 == "INSTANCE" { print $2 }') || exit 1
   
   HOST_IADDRESS="(nil)"
