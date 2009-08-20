@@ -39,8 +39,8 @@ start() {
     --group $HOST_GROUP --key $HOST_KEY --instance-type $HOST_ITYPE \
     | awk '$1 == "INSTANCE" { print $2 }') || exit 1
   
-  HOST_IADDRESS="pending"
-  while [[ $HOST_IADDRESS == "pending" ]]; do
+  HOST_IADDRESS="(nil)"
+  while [[ $HOST_IADDRESS == "(nil)" ]]; do
     HOST_IADDRESS=$(ec2-describe-instances --show-empty-fields $HOST_IID \
       | awk '$1 == "INSTANCE" { print $4 }')
   done
