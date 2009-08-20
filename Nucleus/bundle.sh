@@ -24,7 +24,7 @@ PACKS="bash coreutils openssh curl filesystem dcron dhcpcd gawk \
   pacman procps psmisc syslog-ng"
 
 TYPE="Nucleus"
-RELEASE="2"
+RELEASE="3"
 NAME="ArchLinux-$ARCH-$TYPE-$RELEASE"
 ROOT="/mnt/$NAME.root"
 
