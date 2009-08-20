@@ -46,34 +46,6 @@ none /dev/shm tmpfs defaults 0 0
 
 EOF
 
-cat <<EOF > pacman.conf
-[options]
-HoldPkg     = pacman glibc
-SyncFirst   = pacman
-
-[core]
-Server = http://mirror.cs.vt.edu/pub/ArchLinux/\$repo/os/$AARCH
-Server = http://mirror.umoss.org/archlinux/\$repo/os/$AARCH
-Server = http://mirror.rit.edu/archlinux/\$repo/os/$AARCH
-Server = http://mirrors.gigenet.com/archlinux/\$repo/os/$AARCH
-Include = /etc/pacman.d/mirrorlist
-
-[extra]
-Server = http://mirror.cs.vt.edu/pub/ArchLinux/\$repo/os/$AARCH
-Server = http://mirror.umoss.org/archlinux/\$repo/os/$AARCH
-Server = http://mirror.rit.edu/archlinux/\$repo/os/$AARCH
-Server = http://mirrors.gigenet.com/archlinux/\$repo/os/$AARCH
-Include = /etc/pacman.d/mirrorlist
-
-[community]
-Server = http://mirror.cs.vt.edu/pub/ArchLinux/\$repo/os/$AARCH
-Server = http://mirror.umoss.org/archlinux/\$repo/os/$AARCH
-Server = http://mirror.rit.edu/archlinux/\$repo/os/$AARCH
-Server = http://mirrors.gigenet.com/archlinux/\$repo/os/$AARCH
-Include = /etc/pacman.d/mirrorlist
-
-EOF
-
 mkdir -p "$ROOT"
 mkdir "$ROOT/etc/"
 
@@ -83,17 +55,16 @@ mkdir "$ROOT/dev" ; mount -o bind /dev "$ROOT/dev"
 
 mkdir -p "$ROOT/var/lib/pacman/"
 mkdir -p "$ROOT/var/cache/pacman" ; mount -o bind {,"$ROOT"}"/var/cache/pacman"
-pacman --noconfirm --noprogressbar --config=pacman.conf \
+pacman --noconfirm --noprogressbar --config="/etc/pacman.conf" \
   --root="$ROOT" --cachedir=/var/cache/pacman/pkg \
   -Sy
-pacman --noconfirm --noprogressbar --config=pacman.conf \
+pacman --noconfirm --noprogressbar --config="/etc/pacman.conf" \
   --root="$ROOT" --cachedir=/var/cache/pacman/pkg \
   -S $PACKS
 
 ldconfig -r "$ROOT"
 
 # Do we need to do this?
-cp {,"$ROOT/etc/"}"pacman.conf"
 cp {,"$ROOT"}"/etc/locale.gen"
 
 cat <<EOF > $ROOT/etc/rc.conf
