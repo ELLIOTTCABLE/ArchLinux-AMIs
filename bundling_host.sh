@@ -8,15 +8,11 @@ if [[ $2 == "x86_64" ]]; then
   HOST_EC2_ARCH="x86_64"
   HOST_AMI="ami-1b799e72"
   HOST_ITYPE="m1.large"
-  AKI="aki-b51cf9dc"
-  ARI="ari-b31cf9da"
 else
   HOST_ARCH="i386"
   HOST_EC2_ARCH="i686"
   HOST_AMI="ami-05799e6c"
   HOST_ITYPE="m1.small"
-  AKI="aki-a71cf9ce"
-  ARI="ari-a51cf9cc"
 fi
 
 start() {
