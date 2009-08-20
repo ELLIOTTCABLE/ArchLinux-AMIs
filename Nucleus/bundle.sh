@@ -129,9 +129,7 @@ ca::ctrlaltdel:/sbin/shutdown -t3 -r now
 EOF
 
 sed -i -r 's/#(en_US\.UTF-8)/\1/' $ROOT/etc/locale.gen
-
-sed -i "s/#PasswordAuthentication yes/PasswordAuthentication no/" $ROOT/etc/ssh/sshd_config
-sed -i "s/#UseDNS yes/UseDNS no/" $ROOT/etc/ssh/sshd_config
+sed -i -r "s/#(UseDNS|PasswordAuthentication) yes/\1 no/" $ROOT/etc/ssh/sshd_config
 
 cd $ROOT/lib/modules
 curl -s http://static.iphash.net/ec2/$ARCH/2.6.21.7-2.fc8xen.cpio.lzma | lzma -d | cpio -idmv
