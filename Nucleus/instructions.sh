@@ -1,6 +1,8 @@
 ### Desired
 # curl - needed for the initscripts that download the pubkey
 ### Required
+# bash - shell for initscripts and remote access
+# coreutils - basic Linux utilities
 # openssh - necessary to SSH in
 # filesystem - base filesystem package
 # dcron - cron scheduling
@@ -23,8 +25,6 @@ PACKS="bash coreutils openssh curl filesystem dcron dhcpcd gawk \
 
 TYPE="Nucleus"
 RELEASE="2"
-ARCH="i386"
-AARCH="i686"
 NAME="ArchLinux-$ARCH-$TYPE-$RELEASE"
 ROOT="/mnt/$NAME.root"
 
@@ -173,7 +173,7 @@ umount "$ROOT/"{"proc","sys","dev","var/cache/pacman"}
 ./ec2-ami-tools/bin/ec2-bundle-vol \
   --cert /tmp/cert-*.pem --privatekey /tmp/pk-*.pem \
   --user "$(cat /tmp/account_number)" \
-  --arch $ARCH --kernel aki-a71cf9ce --ramdisk ari-a51cf9cc \
+  --arch $ARCH --kernel $AKI --ramdisk $ARI \
   --size 10240 --fstab fstab --volume $ROOT --no-inherit \
   --destination "/mnt" --prefix "$NAME" --batch --debug
 

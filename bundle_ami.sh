@@ -12,6 +12,8 @@ if [[ $2 == "x86_64" ]]; then
   ARCH="x86_64"
   EC2_ARCH="x86_64"
   ITYPE="m1.large"
+  AKI="aki-b51cf9dc"
+  ARI="ari-b31cf9da"
 else
   HOST_ARCH="i386"
   HOST_EC2_ARCH="i686"
@@ -20,6 +22,8 @@ else
   ARCH="i386"
   EC2_ARCH="i686"
   ITYPE="m1.small"
+  AKI="aki-a71cf9ce"
+  ARI="ari-a51cf9cc"
 fi
 
 HOST_IID=$(./bundling_host.sh get $2) || exit 1

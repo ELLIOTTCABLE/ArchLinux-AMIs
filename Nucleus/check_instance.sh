@@ -4,7 +4,7 @@ MANIFEST=
 AMI_ID=$(ec2-register arch-linux/$MANIFEST | awk '/IMAGE/ { print $2 }')
 
 INSTANCE_ID=$(ec2-run-instances --group Void --key Void \
-  --instance-type m1.large $AMI_ID | awk '/INSTANCE/ { print $2 }')
+  --instance-type $ITYPE $AMI_ID | awk '/INSTANCE/ { print $2 }')
 INSTANCE_ADDRESS="pending"
 while [[ $INSTANCE_ADDRESS == "pending" ]]; do
   INSTANCE_ADDRESS=$(ec2-describe-instances $INSTANCE_ID \
