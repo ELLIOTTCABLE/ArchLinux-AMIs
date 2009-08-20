@@ -94,7 +94,8 @@ cat <<EOF > $ROOT/etc/hosts.deny
 # /etc/hosts.deny
 #
 
-
+# Nothing to see here, move along…
+# Amazon’s EC2 firewall handles all of our security.
 
 # End of file
 
