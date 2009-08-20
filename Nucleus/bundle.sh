@@ -47,7 +47,6 @@ none /dev/shm tmpfs defaults 0 0
 EOF
 
 mkdir -p "$ROOT"
-mkdir "$ROOT/etc/"
 
 mkdir "$ROOT/sys" ; mount -t sysfs sysfs "$ROOT/sys"
 mkdir "$ROOT/proc" ; mount -t proc proc "$ROOT/proc"
@@ -64,8 +63,7 @@ pacman --noconfirm --noprogressbar --config="/etc/pacman.conf" \
 
 ldconfig -r "$ROOT"
 
-# Do we need to do this?
-cp {,"$ROOT"}"/etc/locale.gen"
+sed -i -r 's/#(en_US\.UTF-8)/\1/' $ROOT/etc/locale.gen
 
 cat <<EOF > $ROOT/etc/rc.conf
 #
