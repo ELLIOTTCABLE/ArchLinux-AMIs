@@ -73,7 +73,9 @@ fi
 
 KEYID=$(ec2-describe-keypairs --show-empty-fields \
   | awk '$1 == "KEYPAIR" && $2 == "'$KEY'" { print $2 }')
-if [[ -z $KEYID ]]; then
+if [[ -z $KEYID || ! -f "id_rsa-$KEY" ]]; then
+  ec2-delete-keypair --show-empty-fields $KEY
+  rm -f "id_rsa-$KEY"
   ec2-add-keypair --show-empty-fields $KEY \
     > "id_rsa-$KEY" || exit 1
   chmod 400 "id_rsa-$KEY" || exit 1

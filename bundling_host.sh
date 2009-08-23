@@ -30,7 +30,9 @@ start() {
   
   HOST_KEYID=$(ec2-describe-keypairs --show-empty-fields \
     | awk '$1 == "KEYPAIR" && $2 == "'$HOST_KEY'" { print $2 }')
-  if [[ -z $HOST_KEYID ]]; then
+  if [[ -z $HOST_KEYID || ! -f "id_rsa-$HOST_KEY" ]]; then
+    ec2-delete-keypair --show-empty-fields $HOST_KEY
+    rm -f "id_rsa-$HOST_KEY"
     ec2-add-keypair --show-empty-fields $HOST_KEY \
       > "id_rsa-$HOST_KEY" || exit 1
     chmod 400 "id_rsa-$HOST_KEY" || exit 1
