@@ -43,8 +43,8 @@ export EC2_PRIVATE_KEY="$(/bin/ls $EC2_HOME/pk-*.pem)"
 # a bundling instance!
 
 # We need a private key now, for the instance we're about to create:
-ec2-add-keypair bundling-host > ~/.ec2/id_rsa-bundling-host
-chmod 600 ~/.ec2/id_rsa-bundling-host
+ec2-add-keypair ami-bundler > ~/.ec2/id_rsa-ami-bundler
+chmod 600 ~/.ec2/id_rsa-ami-bundler
 
 # We also need a security group that will allow us to SSH into our new
 # bundling server.
@@ -77,7 +77,7 @@ ec2-describe-images -o amazon | grep 'v1.08'
 # Ensure that you pass the correct instance-type; "m1.small" if you're
 # launching an i686 instance, and "m1.large" if you're launching an x86_64:
 ec2-run-instances --instance-type m1.large --group bundling \
-  --key bundling-host ami-1b799e72
+  --key ami-bundler ami-1b799e72
 BUNDLING_INSTANCE_ID="i-c50f11ac"
 
 # The output from the above command will include the instance ID of the newly
@@ -91,7 +91,7 @@ BUNDLING_INSTANCE_ADDRESS="ec2-75-101-205-232.compute-1.amazonaws.com"
 # The describe command will tell you the public address of the isntance when
 # it's available.
 ssh root@$BUNDLING_INSTANCE_ADDRESS \
-  -i ~/.ec2/id_rsa-bundling-host
+  -i ~/.ec2/id_rsa-ami-bundler
 
 ### Bundling host setup -----------------------------------------------------
 # Now that we're into our new host instance, let's repeat our EC2 tools
@@ -128,22 +128,22 @@ chmod 700 ~/.ec2
 # duplicated on your bundling host. Let's upload all of those. Quit your SSH
 # session again and ship everything off to your new server with scp:
 exit
-scp -i ~/.ec2/id_rsa-bundling-host \
+scp -i ~/.ec2/id_rsa-ami-bundler \
   ~/.ec2/*.pem \
   root@$BUNDLING_INSTANCE_ADDRESS:~/.ec2/
-scp -i ~/.ec2/id_rsa-bundling-host \
+scp -i ~/.ec2/id_rsa-ami-bundler \
   ~/.ec2/account_number \
   root@$BUNDLING_INSTANCE_ADDRESS:~/.ec2/
-scp -i ~/.ec2/id_rsa-bundling-host \
+scp -i ~/.ec2/id_rsa-ami-bundler \
   ~/.ec2/access_key \
   root@$BUNDLING_INSTANCE_ADDRESS:~/.ec2/
-scp -i ~/.ec2/id_rsa-bundling-host \
+scp -i ~/.ec2/id_rsa-ami-bundler \
   ~/.ec2/secret_key \
   root@$BUNDLING_INSTANCE_ADDRESS:~/.ec2/
 
 # And back in again!
 ssh root@$BUNDLING_INSTANCE_ADDRESS \
-  -i ~/.ec2/id_rsa-bundling-host
+  -i ~/.ec2/id_rsa-ami-bundler
 
 # We'll also run our `pacman` mirrorlist through `rankmirrors` now.
 # We need Python for `rankmirrors`, so we’ll install that first:
@@ -357,7 +357,7 @@ ec2-terminate-instances i-ad286fc4
 # Note: You'll probably want to create new security groups and keys for this,
 # but the ones we've been using for the bundling host will work for now.
 ec2-run-instances --instance-type m1.small --group bundling \
-  --key bundling-host ami-7dd23414
+  --key ami-bundler ami-7dd23414
 ec2-describe-instances i-bde2a3d4
 # ... and so on.
 

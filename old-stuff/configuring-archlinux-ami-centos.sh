@@ -47,8 +47,8 @@ export EC2_PRIVATE_KEY="$(/bin/ls $EC2_HOME/pk-*.pem)"
 # a bundling instance!
 
 # We need a private key now, for the instance we're about to create:
-ec2-add-keypair bundling-host > ~/.ec2/id_rsa-bundling-host
-chmod 600 ~/.ec2/id_rsa-bundling-host
+ec2-add-keypair ami-bundler > ~/.ec2/id_rsa-ami-bundler
+chmod 600 ~/.ec2/id_rsa-ami-bundler
 
 # We also need a security group that will allow us to SSH into our new
 # bundling server.
@@ -76,9 +76,9 @@ ec2-describe-images -o amazon | grep 'v1.08'
 # Ensure that you pass the correct instance-type; "m1.small" if you're
 # launching an i686 instance, and "m1.large" if you're launching an x86_64:
 #ec2-run-instances --instance-type m1.small --group bundling \
-#  --key bundling-host ami-5647a33f
+#  --key ami-bundler ami-5647a33f
 ec2-run-instances --instance-type m1.small --group bundling \
-  --key bundling-host ami-0459bc6d
+  --key ami-bundler ami-0459bc6d
 
 # The output from the above command will include the instance ID of the newly
 # created instance, a string starting with i-. Pass that to the
@@ -90,7 +90,7 @@ while true; do date; ec2-describe-instances i-ad286fc4; done
 # The describe command will tell you the public address of the isntance when
 # it's available.
 ssh root@ec2-67-202-10-136.compute-1.amazonaws.com \
-  -i ~/.ec2/id_rsa-bundling-host
+  -i ~/.ec2/id_rsa-ami-bundler
 
 ### Bundling host setup -----------------------------------------------------
 # Now that we're into our new host instance, let's repeat our EC2 tools
@@ -122,7 +122,7 @@ echo 'export PATH="$PATH:$JAVA_HOME/bin"' >> !$
 # Now you need to leave and re-SSH-in to get those variables set.
 exit
 ssh root@ec2-67-202-10-136.compute-1.amazonaws.com \
-  -i ~/.ec2/id_rsa-bundling-host
+  -i ~/.ec2/id_rsa-ami-bundler
 
 # Check that they're properly set. This should list a bunch of java
 # directories.
@@ -143,22 +143,22 @@ mv ec2-ami-tools-*/lib/* .ec2/lib/
 # duplicated on your bundling host. Let's upload all of those. Quit your SSH
 # session again and ship everything off to your new server with scp:
 exit
-scp -i ~/.ec2/id_rsa-bundling-host \
+scp -i ~/.ec2/id_rsa-ami-bundler \
   ~/.ec2/*.pem \
   root@ec2-67-202-10-136.compute-1.amazonaws.com:~/.ec2/
-scp -i ~/.ec2/id_rsa-bundling-host \
+scp -i ~/.ec2/id_rsa-ami-bundler \
   ~/.ec2/account_number \
   root@ec2-67-202-10-136.compute-1.amazonaws.com:~/.ec2/
-scp -i ~/.ec2/id_rsa-bundling-host \
+scp -i ~/.ec2/id_rsa-ami-bundler \
   ~/.ec2/access_key \
   root@ec2-67-202-10-136.compute-1.amazonaws.com:~/.ec2/
-scp -i ~/.ec2/id_rsa-bundling-host \
+scp -i ~/.ec2/id_rsa-ami-bundler \
   ~/.ec2/secret_key \
   root@ec2-67-202-10-136.compute-1.amazonaws.com:~/.ec2/
 
 # And back in again!
 ssh root@ec2-67-202-10-136.compute-1.amazonaws.com \
-  -i ~/.ec2/id_rsa-bundling-host
+  -i ~/.ec2/id_rsa-ami-bundler
 
 # We also need our new EC2 tools in the $PATH.
 touch /etc/profile.d/ec2.sh
@@ -171,7 +171,7 @@ echo 'export EC2_PRIVATE_KEY="$(/bin/ls $EC2_HOME/pk-*.pem)"' >> !$
 # Again, you gotta close the SSH session and re-open it.
 exit
 ssh root@ec2-67-202-10-136.compute-1.amazonaws.com \
-  -i ~/.ec2/id_rsa-bundling-host
+  -i ~/.ec2/id_rsa-ami-bundler
 
 # Now we need to get pacman, to install Arch Linux's base packages with.
 # Unfortunately, it'd be difficult to install all of its dependencies on
@@ -444,6 +444,6 @@ ec2-terminate-instances i-ad286fc4
 # Note: You'll probably want to create new security groups and keys for this,
 # but the ones we've been using for the bundling host will work for now.
 ec2-run-instances --instance-type m1.small --group bundling \
-  --key bundling-host ami-7dd23414
+  --key ami-bundler ami-7dd23414
 ec2-describe-instances i-bde2a3d4
 # ... and so on.

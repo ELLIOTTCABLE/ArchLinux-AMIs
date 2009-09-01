@@ -2,8 +2,8 @@
 
 AVAILABILITY_ZONE="us-east-1a"
 
-HOST_KEY="bundling-host"
-HOST_GROUP="bundling-host"
+HOST_KEY="ami-bundler"
+HOST_GROUP="ami-bundler"
 
 if [[ $2 == "x86_64" ]]; then
   HOST_ARCH="x86_64"
@@ -98,7 +98,7 @@ stop() {
 
 get() {
   ec2-describe-instances --show-empty-fields \
-    | awk '$1 == "INSTANCE" && $6 == "running" && $7 == "bundling-host" && \
+    | awk '$1 == "INSTANCE" && $6 == "running" && $7 == "ami-bundler" && \
       $10 == "'$HOST_ITYPE'" { print $2; exit }' || exit 1
 }
 

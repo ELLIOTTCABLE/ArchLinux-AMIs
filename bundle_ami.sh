@@ -1,7 +1,7 @@
 AVAILABILITY_ZONE="us-east-1a"
 
-HOST_KEY="bundling-host"
-HOST_GROUP="bundling-host"
+HOST_KEY="ami-bundler"
+HOST_GROUP="ami-bundler"
 
 KEY="bundle-testing"
 GROUP="bundle-testing"
@@ -30,7 +30,7 @@ else
   ARI="ari-a51cf9cc"
 fi
 
-HOST_IID=$(./bundling_host.sh get $2) || exit 1
+HOST_IID=$(./ami_bundler.sh get $2) || exit 1
 
 HOST_IADDRESS="(nil)"
 while [[ $HOST_IADDRESS == "(nil)" ]]; do
