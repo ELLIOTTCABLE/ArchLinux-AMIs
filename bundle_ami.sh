@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 AVAILABILITY_ZONE="us-east-1a"
 
 HOST_KEY="ami-bundler"
