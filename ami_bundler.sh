@@ -98,7 +98,7 @@ stop() {
 
 get() {
   ec2-describe-instances --show-empty-fields \
-    | awk '$1 == "INSTANCE" && $6 == "running" && $7 == "ami-bundler" && \
+    | awk '$1 == "INSTANCE" && $6 == "running" && $7 == "'$HOST_GROUP'" && \
       $10 == "'$HOST_ITYPE'" { print $2; exit }' || exit 1
 }
 
