@@ -232,18 +232,18 @@ usage() {
 
 host() {
   case $2 in
-    "restart")  stop_host; start_host   ;;
-    "start")    start_host              ;;
-    "stop")     stop_host               ;;
-    "get")      get_host                ;;
-    *)          usage                   ;;
+    "restart")  stop_host  "$@"; start_host "$@"  ;;
+    "start")    start_host "$@"                   ;;
+    "stop")     stop_host  "$@"                   ;;
+    "get")      get_host   "$@"                   ;;
+    *)          usage      "$@"                   ;;
   esac
   
   exit 1
 }
 
 case $1 in
-  "bundle") bundle  ;;
-  "host")   host    ;;
-  *)        usage   ;;
+  "bundle") bundle "$@"   ;;
+  "host")   host   "$@"   ;;
+  *)        usage  "$@"   ;;
 esac
