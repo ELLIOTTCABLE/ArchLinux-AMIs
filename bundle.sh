@@ -33,7 +33,14 @@ else
 fi
 
 bundle() {
-  HOST_IID=$($0 host get $HOST_ARCH) || exit 1
+  STARTED_HOST=''
+  
+  HOST_IID=$($0 host get $HOST_ARCH)
+  
+  if [[ -z $HOST_IID ]]; then
+    STARTED_HOST='yes'
+    start_host || exit 1
+  fi
   
   HOST_IADDRESS="(nil)"
   while [[ $HOST_IADDRESS == "(nil)" ]]; do
@@ -104,6 +111,11 @@ bundle() {
 			shutdown -h now && exit
 		ITESTING
   done
+  
+  if [[ -n $STARTED_HOST ]]; then
+    STARTED_HOST=''
+    stop_host || exit 1
+  fi
   
   echo "** ${NAME} registered: ${AMI}"
 }
