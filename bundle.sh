@@ -32,7 +32,7 @@ else
   ARI="ari-a51cf9cc"
 fi
 
-HOST_IID=$(./ami_bundler.sh get $3) || exit 1
+HOST_IID=$(./ami_bundler.sh get $HOST_ARCH) || exit 1
 
 HOST_IADDRESS="(nil)"
 while [[ $HOST_IADDRESS == "(nil)" ]]; do
