@@ -10,6 +10,14 @@ GROUP="bundle-testing"
 
 BUCKET="arch-linux"
 
+if [[ $3 == "both" ]]; then
+  echo "-- Bundling i386"
+  $0 $1 $2 'i386' || exit 1
+  echo "-- Bundling x86_64"
+  $0 $1 $2 'x86_64' || exit 1
+  exit 0
+fi
+
 if [[ $3 == "x86_64" ]]; then
   HOST_ARCH="x86_64"
   HOST_EC2_ARCH="x86_64"
