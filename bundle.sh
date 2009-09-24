@@ -207,6 +207,7 @@ stop_host() {
   ec2-delete-group --show-empty-fields $HOST_GROUP
   ec2-delete-keypair --show-empty-fields $HOST_KEY
   rm -f "id_rsa-$HOST_KEY"
+  exit 0
 }
 
 get_host() {
