@@ -59,7 +59,7 @@ bundle() {
   NAME=$(
 		cat "-" "./$2/bundle.sh" <<-SETUP | ssh -o "StrictHostKeyChecking no" -i "id_rsa-$HOST_KEY" root@$HOST_IADDRESS | tail -n1
 			source /root/.profile
-		
+			
 			AVAILABILITY_ZONE="$AVAILABILITY_ZONE"
 			KEY="$KEY"
 			GROUP="$GROUP"
