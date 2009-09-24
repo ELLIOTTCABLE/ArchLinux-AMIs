@@ -190,7 +190,7 @@ start_host() {
 		
 		mount -t ext3 $EPHEMERAL_STORE /mnt
 		
-		wget http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.zip
+		wget -q http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.zip
 		unzip -oq ec2-ami-tools.zip
 		mv ec2-ami-tools-* ec2-ami-tools
 		
