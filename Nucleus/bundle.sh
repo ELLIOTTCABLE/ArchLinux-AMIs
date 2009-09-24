@@ -1,4 +1,4 @@
-RELEASE="0a"
+RELEASE="0l"
 
 ### Desired
 # curl - needed for the initscripts that download the pubkey
