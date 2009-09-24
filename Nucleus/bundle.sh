@@ -21,13 +21,42 @@ RELEASE="0a"
 # procps - ps, top, kill
 # psmisc - killall (initscripts)
 # syslog-ng - system logging
-PACKS="bash coreutils openssh curl filesystem dcron dhcpcd gawk \
-  util-linux-ng initscripts iputils licenses logrotate module-init-tools \
-  pacman procps psmisc syslog-ng"
+### Udev requirements (installed first, see below)
+# glibc
+# coreutils
+# util-linux-ng
+# filesystem - required for fstab to exist
+UDEV_REQS="glibc coreutils util-linux-ng filesystem"
+PACKS="bash openssh curl dcron dhcpcd gawk initscripts iputils licenses \
+  logrotate module-init-tools pacman procps psmisc syslog-ng"
 
 TYPE="Nucleus"
 NAME="ArchLinux-$ARCH-$TYPE-$RELEASE"
 ROOT="/mnt/$NAME.root"
+
+mkdir -p "$ROOT"
+
+mkdir "$ROOT/sys/"  ; mount -t sysfs sysfs "$ROOT/sys"
+mkdir "$ROOT/proc/" ; mount -t proc   proc "$ROOT/proc"
+mkdir "$ROOT/dev/"  ; mount -o bind "/dev" "$ROOT/dev"
+
+mkdir -p "$ROOT/usr/aws/ec2/"
+
+mkdir -p "$ROOT/var/lib/pacman/"
+mkdir -p "$ROOT/var/cache/pacman/" ; mount -o bind {,"$ROOT"}"/var/cache/pacman"
+pacman --noconfirm --noprogressbar --config="/etc/pacman.conf" \
+  --root="$ROOT" --cachedir=/var/cache/pacman/pkg \
+  -Sy
+
+### vv Udev downgrade vv
+# The EC2 Linux kernels we’re using (aki-a71cf9ce/aki-b51cf9dc) are
+# 2.6.21.7-2, udev 145-1 requires minimum 2.6.24.5, so we’re utilizing an old
+# udev (141-5):
+# http://www.archlinux.org/news/457/
+
+pacman --noconfirm --noprogressbar --config="/etc/pacman.conf" \
+  --root="$ROOT" --cachedir=/var/cache/pacman/pkg \
+  -S $UDEV_REQS
 
 cat <<EOF > $ROOT/etc/fstab
 /dev/sda1   /             ext3  defaults 1 1
@@ -47,19 +76,12 @@ none /dev/shm tmpfs defaults 0 0
 
 EOF
 
-mkdir -p "$ROOT"
-
-mkdir "$ROOT/sys/"  ; mount -t sysfs sysfs "$ROOT/sys"
-mkdir "$ROOT/proc/" ; mount -t proc   proc "$ROOT/proc"
-mkdir "$ROOT/dev/"  ; mount -o bind "/dev" "$ROOT/dev"
-
-mkdir -p "$ROOT/usr/aws/ec2/"
-
-mkdir -p "$ROOT/var/lib/pacman/"
-mkdir -p "$ROOT/var/cache/pacman/" ; mount -o bind {,"$ROOT"}"/var/cache/pacman"
 pacman --noconfirm --noprogressbar --config="/etc/pacman.conf" \
   --root="$ROOT" --cachedir=/var/cache/pacman/pkg \
-  -Sy
+  -U http://arm.kh.nu/core::2009-8-25/os/$EC2_ARCH/udev-141-5-i686.pkg.tar.gz
+
+### ^^ Udev downgrade ^^
+
 pacman --noconfirm --noprogressbar --config="/etc/pacman.conf" \
   --root="$ROOT" --cachedir=/var/cache/pacman/pkg \
   -S $PACKS
