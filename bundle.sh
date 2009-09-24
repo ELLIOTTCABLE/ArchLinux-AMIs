@@ -203,7 +203,7 @@ start_host() {
 }
 
 stop_host() {
-  ec2-terminate-instances --show-empty-fields $(get)
+  ec2-terminate-instances --show-empty-fields $(get_host)
   ec2-delete-group --show-empty-fields $HOST_GROUP
   ec2-delete-keypair --show-empty-fields $HOST_KEY
   rm -f "id_rsa-$HOST_KEY"
