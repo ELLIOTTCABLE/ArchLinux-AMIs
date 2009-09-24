@@ -115,8 +115,9 @@ bundle() {
 		ssh -o "StrictHostKeyChecking no" -i "id_rsa-$KEY" root@$IADDRESS <<-ITESTING
 			pacman --noconfirm -S sudo wget which vi tar nano lzo2 procinfo \
 			  libgcrypt less groff file diffutils dialog dbus-core dash cpio binutils
-		
-			shutdown -h now && exit
+			
+			INSTALL_STATUS=$?
+			shutdown -h now && exit $INSTALL_STATUS
 		ITESTING
   done
   
