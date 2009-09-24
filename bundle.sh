@@ -11,9 +11,9 @@ GROUP="bundle-testing"
 BUCKET="arch-linux"
 
 if [[ $3 == "both" ]]; then
-  echo "-- Bundling i386"
+  echo "-- i386"
   $0 $1 $2 'i386' || exit 1
-  echo "-- Bundling x86_64"
+  echo "-- x86_64"
   $0 $1 $2 'x86_64' || exit 1
   exit 0
 fi
