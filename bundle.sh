@@ -199,7 +199,7 @@ start_host() {
 		
 		pacman --noconfirm -S unzip rsync lzma cpio
 		
-		pacman --noconfirm -U http://arm.kh.nu/extra::2009-9-13/os/$EC2_ARCH/ruby-1.8.7_p174-1-i686.pkg.tar.gz
+		pacman --noconfirm -U http://arm.kh.nu/extra::2009-9-13/os/$EC2_ARCH/ruby-1.8.7_p174-1-$EC2_ARCH.pkg.tar.gz
 		
 		pacman --noconfirm -Sc
 		

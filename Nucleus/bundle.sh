@@ -81,7 +81,7 @@ EOF
 
 pacman --noconfirm --noprogressbar --config="/etc/pacman.conf" \
   --root="$ROOT" --cachedir=/var/cache/pacman/pkg \
-  -U http://arm.kh.nu/core::2009-8-25/os/$EC2_ARCH/udev-141-5-i686.pkg.tar.gz
+  -U http://arm.kh.nu/core::2009-8-25/os/$EC2_ARCH/udev-141-5-$EC2_ARCH.pkg.tar.gz
 
 ### ^^ Udev downgrade ^^
 
