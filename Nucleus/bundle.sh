@@ -188,5 +188,6 @@ echo "-- Uploading image"
   --manifest "/mnt/${NAME}.manifest.xml" --batch --debug --retry
 
 rm -rf /mnt/$NAME*
+rm -rf /mnt/img-mnt
 
 echo $NAME
