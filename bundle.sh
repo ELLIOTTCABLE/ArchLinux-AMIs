@@ -76,7 +76,7 @@ bundle() {
 			ITYPE="$ITYPE"
 			AKI="$AKI"
 			ARI="$ARI"
-			echo "-- Executing \`$2/bundle.sh\` on the bundling host"
+			echo "-- Executing \\\`$2/bundle.sh\\\` on the bundling host"
 		SETUP
   )
   
