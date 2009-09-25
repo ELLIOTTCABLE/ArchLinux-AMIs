@@ -300,8 +300,6 @@ host() {
     "get")      get_host   "$@"                   ;;
     *)          usage      "$@"                   ;;
   esac
-  
-  exit 1
 }
 
 case $1 in
