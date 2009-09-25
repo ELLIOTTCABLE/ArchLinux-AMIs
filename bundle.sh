@@ -12,9 +12,9 @@ BUCKET="arch-linux"
 
 if [[ $3 == "both" ]]; then
   echo "-- i386"
-  $0 $1 $2 'i386' || exit 1
+  $0 $1 $2 'i386' || exit $?
   echo "-- x86_64"
-  $0 $1 $2 'x86_64' || exit 1
+  $0 $1 $2 'x86_64' || exit $?
   exit 0
 fi
 
