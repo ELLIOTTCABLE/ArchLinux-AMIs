@@ -133,7 +133,9 @@ cat <<EOF >> $ROOT/etc/rc.local
 killall nash-hotplug
 if [ ! -f /usr/aws/ec2/.instantiated ]; then
   mkdir /root/.ssh
-  curl --retry 3 --retry-delay 5 --silent --fail -o /root/.ssh/authorized_keys http://169.254.169.254/1.0/meta-data/public-keys/0/openssh-key
+  curl --retry 3 --retry-delay 5 --silent --fail -o \
+    /root/.ssh/authorized_keys \
+    http://169.254.169.254/1.0/meta-data/public-keys/0/openssh-key
   
   mkdir -p /usr/aws/ec2/
   touch /usr/aws/ec2/.instantiated
@@ -157,12 +159,14 @@ ca::ctrlaltdel:/sbin/shutdown -t3 -r now
 EOF
 
 sed -i -r 's/#(en_US\.UTF-8)/\1/' $ROOT/etc/locale.gen
-sed -i -r "s/#(UseDNS|PasswordAuthentication) yes/\1 no/" $ROOT/etc/ssh/sshd_config
+sed -i -r "s/#(UseDNS|PasswordAuthentication) yes/\1 no/" \
+  $ROOT/etc/ssh/sshd_config
 sed -i -r "s/#(Server)/\1/" $ROOT/etc/pacman.d/mirrorlist
 
 echo "-- Installing EC2 kernel modules"
 cd $ROOT/lib/modules
-curl -s http://static.iphash.net/ec2/$ARCH/2.6.21.7-2.fc8xen.cpio.lzma | lzma -d | cpio -idm
+curl -s http://static.iphash.net/ec2/$ARCH/2.6.21.7-2.fc8xen.cpio.lzma \
+  | lzma -d | cpio -idm
 cd -
 
 echo "-- Tearing down environment"
@@ -178,7 +182,8 @@ echo "-- Bundling image"
 
 echo "-- Uploading image"
 ./ec2-ami-tools/bin/ec2-upload-bundle \
-  --access-key "$(cat /tmp/access_key)" --secret-key "$(cat /tmp/secret_key)" \
+  --access-key "$(cat /tmp/access_key)" \
+  --secret-key "$(cat /tmp/secret_key)"
   --bucket $BUCKET \
   --manifest "/mnt/${NAME}.manifest.xml" --batch --debug --retry
 
