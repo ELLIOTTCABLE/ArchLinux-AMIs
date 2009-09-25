@@ -219,10 +219,31 @@ start_host() {
 
 stop_host() {
   echo "-- Terminating the $HOST_ARCH bundling host"
-  ec2-terminate-instances --show-empty-fields $(get_host)
-  ec2-delete-group --show-empty-fields $HOST_GROUP
-  ec2-delete-keypair --show-empty-fields $HOST_KEY
-  rm -f "id_rsa-$HOST_KEY"
+  IID=$(get_host)
+  if [[ -n $IID ]]; then
+    ec2-terminate-instances --show-empty-fields $IID
+    echo "-- Waiting for the host to shut down"
+    STATUS="running"
+    while [[ $STATUS != "terminated" ]]; do
+      STATUS=$(ec2-describe-instances $IID --show-empty-fields \
+        | awk '{ print $6 }')
+    done
+  fi
+  
+  HOST_IIDS=$(ec2-describe-instances --show-empty-fields \
+    | awk '$1 == "INSTANCE" && $7 == "'$HOST_GROUP'" && \
+      $6 != "terminated" { print $6 }')
+  if [[ -z $HOST_IIDS ]]; then
+    echo "-- There are no active bundling hosts, wiping groups and keys"
+    ec2-delete-group --show-empty-fields $HOST_GROUP
+    ec2-delete-keypair --show-empty-fields $HOST_KEY && \
+      rm -f "id_rsa-$HOST_KEY"
+    
+    ec2-delete-group --show-empty-fields $GROUP
+    ec2-delete-keypair --show-empty-fields $KEY && \
+      rm -f "id_rsa-$KEY"
+  fi
+  
   true
 }
 
