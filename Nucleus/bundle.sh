@@ -34,6 +34,7 @@ TYPE="Nucleus"
 NAME="ArchLinux-$ARCH-$TYPE-$RELEASE"
 ROOT="/mnt/$NAME.root"
 
+echo "-- Creating filesystem"
 mkdir -p "$ROOT"
 
 mkdir "$ROOT/sys/"  ; mount -t sysfs sysfs "$ROOT/sys"
@@ -44,6 +45,8 @@ mkdir -p "$ROOT/usr/aws/ec2/"
 
 mkdir -p "$ROOT/var/lib/pacman/"
 mkdir -p "$ROOT/var/cache/pacman/" ; mount -o bind {,"$ROOT"}"/var/cache/pacman"
+
+echo "-- Syncing pacman repositories"
 pacman --noconfirm --noprogressbar --config="/etc/pacman.conf" \
   --root="$ROOT" --cachedir=/var/cache/pacman/pkg \
   -Sy
@@ -53,7 +56,7 @@ pacman --noconfirm --noprogressbar --config="/etc/pacman.conf" \
 # 2.6.21.7-2, udev 145-1 requires minimum 2.6.24.5, so we’re utilizing an old
 # udev (141-5):
 # http://www.archlinux.org/news/457/
-
+echo "-- Installing Udev 141-5"
 pacman --noconfirm --noprogressbar --config="/etc/pacman.conf" \
   --root="$ROOT" --cachedir=/var/cache/pacman/pkg \
   -S $UDEV_REQS
@@ -82,12 +85,14 @@ pacman --noconfirm --noprogressbar --config="/etc/pacman.conf" \
 
 ### ^^ Udev downgrade ^^
 
+echo "-- Installing the rest of \$PACKS"
 pacman --noconfirm --noprogressbar --config="/etc/pacman.conf" \
   --root="$ROOT" --cachedir=/var/cache/pacman/pkg \
   -S $PACKS
 
 ldconfig -r "$ROOT"
 
+echo "-- Configuring some system files"
 cat <<EOF > $ROOT/etc/rc.conf
 #
 # /etc/rc.conf - Main Configuration for Arch Linux
@@ -155,12 +160,15 @@ sed -i -r 's/#(en_US\.UTF-8)/\1/' $ROOT/etc/locale.gen
 sed -i -r "s/#(UseDNS|PasswordAuthentication) yes/\1 no/" $ROOT/etc/ssh/sshd_config
 sed -i -r "s/#(Server)/\1/" $ROOT/etc/pacman.d/mirrorlist
 
+echo "-- Installing EC2 kernel modules"
 cd $ROOT/lib/modules
 curl -s http://static.iphash.net/ec2/$ARCH/2.6.21.7-2.fc8xen.cpio.lzma | lzma -d | cpio -idm
 cd -
 
+echo "-- Tearing down environment"
 umount "$ROOT/"{"proc","sys","dev","var/cache/pacman"}
 
+echo "-- Bundling image"
 ./ec2-ami-tools/bin/ec2-bundle-vol \
   --cert /tmp/cert-*.pem --privatekey /tmp/pk-*.pem \
   --user "$(cat /tmp/account_number)" \
@@ -168,6 +176,7 @@ umount "$ROOT/"{"proc","sys","dev","var/cache/pacman"}
   --size 10240 --fstab "$ROOT/etc/fstab" --volume $ROOT --no-inherit \
   --destination "/mnt" --prefix "$NAME" --batch --debug
 
+echo "-- Uploading image"
 ./ec2-ami-tools/bin/ec2-upload-bundle \
   --access-key "$(cat /tmp/access_key)" --secret-key "$(cat /tmp/secret_key)" \
   --bucket $BUCKET \
