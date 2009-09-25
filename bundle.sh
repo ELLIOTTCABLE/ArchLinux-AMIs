@@ -226,7 +226,7 @@ stop_host() {
     STATUS="running"
     while [[ $STATUS != "terminated" ]]; do
       STATUS=$(ec2-describe-instances $IID --show-empty-fields \
-        | awk '{ print $6 }')
+        | awk '$1 == "INSTANCE" { print $6 }')
     done
   fi
   
