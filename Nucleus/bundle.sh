@@ -183,7 +183,7 @@ echo "-- Bundling image"
 echo "-- Uploading image"
 ./ec2-ami-tools/bin/ec2-upload-bundle \
   --access-key "$(cat /tmp/access_key)" \
-  --secret-key "$(cat /tmp/secret_key)"
+  --secret-key "$(cat /tmp/secret_key)" \
   --bucket $BUCKET \
   --manifest "/mnt/${NAME}.manifest.xml" --batch --debug --retry
 
