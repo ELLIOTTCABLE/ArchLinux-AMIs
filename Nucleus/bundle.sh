@@ -29,7 +29,7 @@ TYPE="Nucleus"
 NAME="ArchLinux-$ARCH-$TYPE-$RELEASE"
 ROOT="/mnt/$NAME.root"
 
-cat <<EOF > $ROOT/etc/fstab
+cat <<EOF > fstab
 /dev/sda1   /             ext3  defaults 1 1
 #/dev/sda2  /mnt          ext3  defaults 0 0
 /dev/sda3   swap          swap  defaults 0 0
@@ -154,7 +154,7 @@ echo "-- Bundling image"
   --cert /tmp/cert-*.pem --privatekey /tmp/pk-*.pem \
   --user "$(cat /tmp/account_number)" \
   --arch $ARCH --kernel $AKI --ramdisk $ARI \
-  --size 10240 --fstab "$ROOT/etc/fstab" --volume $ROOT --no-inherit \
+  --size 10240 --fstab fstab --volume $ROOT --no-inherit \
   --destination "/mnt" --prefix "$NAME" --batch --debug
 
 echo "-- Uploading image"
