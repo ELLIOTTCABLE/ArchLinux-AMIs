@@ -26,8 +26,8 @@ if [[ $3 == "x86_64" ]]; then
   ARCH="x86_64"
   EC2_ARCH="x86_64"
   ITYPE="m1.large"
-  AKI="aki-b51cf9dc"
-  ARI="ari-b31cf9da"
+  AKI="aki-9c1efef5"
+  ARI="ari-901efef9"
 else
   HOST_ARCH="i386"
   HOST_EC2_ARCH="i686"
@@ -36,8 +36,8 @@ else
   ARCH="i386"
   EC2_ARCH="i686"
   ITYPE="m1.small"
-  AKI="aki-a71cf9ce"
-  ARI="ari-a51cf9cc"
+  AKI="aki-841efeed"
+  ARI="ari-9a1efef3"
 fi
 
 bundle() {
