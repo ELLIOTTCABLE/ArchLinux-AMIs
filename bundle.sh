@@ -120,6 +120,7 @@ bundle() {
   until [[ $? == 0 ]]; do
     sleep 5
 		ssh -o "StrictHostKeyChecking no" -i "id_rsa-$KEY" root@$IADDRESS <<-ITESTING
+			echo "?? `uname --all`"
 			echo "-- Installing packages with pacman"
 			pacman --noconfirm -S sudo wget which vi tar nano lzo2 procinfo \
 			  libgcrypt less groff file diffutils dialog dbus-core dash cpio binutils
