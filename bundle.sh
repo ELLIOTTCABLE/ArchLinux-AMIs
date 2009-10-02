@@ -86,6 +86,8 @@ bundle() {
 			source /root/.profile
 			
 			AVAILABILITY_ZONE="$AVAILABILITY_ZONE"
+			HOST_GROUP="$HOST_GROUP"
+			HOST_KEY="$HOST_KEY"
 			KEY="$KEY"
 			GROUP="$GROUP"
 			BUCKET="$BUCKET"
