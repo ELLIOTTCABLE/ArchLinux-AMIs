@@ -45,6 +45,28 @@ bundle() {
   
   HOST_IID=$($0 host get $HOST_ARCH)
   
+  echo "-- Preparing EC2 environment"
+  GROUPID=$(ec2-describe-group --show-empty-fields | awk '$1 == "GROUP" \
+    && $3 == "'$GROUP'" { print $3 }')
+  if [[ -z $GROUPID ]]; then
+    ec2-add-group --show-empty-fields $GROUP \
+      -d "Instances dedicated to bundling AMIs" || exit 1
+    ec2-authorize --show-empty-fields $GROUP \
+      --protocol tcp --port-range 22 || exit 1
+    echo "-- Added security group: $GROUP"
+  fi
+  
+  KEYID=$(ec2-describe-keypairs --show-empty-fields \
+    | awk '$1 == "KEYPAIR" && $2 == "'$KEY'" { print $2 }')
+  if [[ -z $KEYID || ! -f "id_rsa-$KEY" ]]; then
+    ec2-delete-keypair --show-empty-fields $KEY
+    rm -f "id_rsa-$KEY"
+    ec2-add-keypair --show-empty-fields $KEY \
+      > "id_rsa-$KEY" || exit 1
+    chmod 400 "id_rsa-$KEY" || exit 1
+    echo "-- Added keypair: $KEY"
+  fi
+  
   if [[ -z $HOST_IID ]]; then
     echo "-- No bundling host exists, instantiating one"
     STARTED_HOST='yes'
@@ -85,26 +107,6 @@ bundle() {
     | awk '/IMAGE/ { print $2 }')
   
   echo "-- Instantiating $AMI to test"
-  GROUPID=$(ec2-describe-group --show-empty-fields | awk '$1 == "GROUP" \
-    && $3 == "'$GROUP'" { print $3 }')
-  if [[ -z $GROUPID ]]; then
-    ec2-add-group --show-empty-fields $GROUP \
-      -d "Instances dedicated to bundling AMIs" || exit 1
-    ec2-authorize --show-empty-fields $GROUP \
-      --protocol tcp --port-range 22 || exit 1
-    echo "-- Added security group: $GROUP"
-  fi
-  
-  KEYID=$(ec2-describe-keypairs --show-empty-fields \
-    | awk '$1 == "KEYPAIR" && $2 == "'$KEY'" { print $2 }')
-  if [[ -z $KEYID || ! -f "id_rsa-$KEY" ]]; then
-    ec2-delete-keypair --show-empty-fields $KEY
-    rm -f "id_rsa-$KEY"
-    ec2-add-keypair --show-empty-fields $KEY \
-      > "id_rsa-$KEY" || exit 1
-    chmod 400 "id_rsa-$KEY" || exit 1
-    echo "-- Added keypair: $KEY"
-  fi
   
   IID=$(ec2-run-instances --group $GROUP --key $KEY \
     --availability-zone $AVAILABILITY_ZONE \
@@ -140,7 +142,7 @@ bundle() {
 }
 
 start_host() {
-  echo "-- Preparing EC2 environment"
+  echo "-- Preparing EC2 environment for the bundling host"
   HOST_GROUPID=$(ec2-describe-group --show-empty-fields | awk '$1 == "GROUP" \
     && $3 == "'$HOST_GROUP'" { print $3 }')
   if [[ -z $HOST_GROUPID ]]; then
