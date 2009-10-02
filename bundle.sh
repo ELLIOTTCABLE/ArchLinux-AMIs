@@ -120,6 +120,7 @@ bundle() {
   MODULES_ARCHIVE=$(
 		ssh -o "StrictHostKeyChecking no" -i "id_rsa-$KERNEL_KEY" ubuntu@$KERNEL_IADDRESS <<-ITESTING | tail -n1
 			cd /mnt
+			# Yanked from https://bugs.launchpad.net/ubuntu/+bug/418130/comments/36
 			sudo wget -q http://ppa.launchpad.net/timg-tpi/ubuntu/pool/main/l/linux-ec2/linux-image-\$(uname -r)_2.6.31-300.2_${KERNEL_ARCH}.deb
 			sudo dpkg -i linux-image-\$(uname -r)_2.6.31-300.2_${KERNEL_ARCH}.deb
 			echo "-- Packaging kernel modules "
