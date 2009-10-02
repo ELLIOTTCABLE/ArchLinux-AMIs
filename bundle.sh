@@ -2,11 +2,11 @@
 
 AVAILABILITY_ZONE="us-east-1a"
 
-HOST_KEY="ami-bundler"
-HOST_GROUP="ami-bundler"
+HOST_GROUP="__bundling-host__"
+HOST_KEY=$HOST_GROUP
 
-KEY="bundle-testing"
-GROUP="bundle-testing"
+GROUP="__ami-testing__"
+KEY=$GROUP
 
 BUCKET="arch-linux"
 
