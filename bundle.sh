@@ -109,7 +109,6 @@ bundle() {
     | awk '/IMAGE/ { print $2 }')
   
   echo "-- Instantiating $AMI to test"
-  
   IID=$(ec2-run-instances --group $GROUP --key $KEY \
     --availability-zone $AVAILABILITY_ZONE \
     --instance-type $ITYPE $AMI | awk '/INSTANCE/ { print $2 }')
@@ -124,7 +123,7 @@ bundle() {
   until [[ $? == 0 ]]; do
     sleep 5
 		ssh -o "StrictHostKeyChecking no" -i "id_rsa-$KEY" root@$IADDRESS <<-ITESTING
-			echo "?? `uname --all`"
+			echo "?? `uname --all`" # TODO: Do I need to escape these?
 			echo "-- Installing packages with pacman"
 			pacman --noconfirm -S sudo wget which vi tar nano lzo2 procinfo \
 			  libgcrypt less groff file diffutils dialog dbus-core dash cpio binutils
@@ -144,7 +143,7 @@ bundle() {
 }
 
 start_host() {
-  echo "-- Preparing EC2 environment for the bundling host"
+  echo "-- Preparing EC2 environment for bundling host"
   HOST_GROUPID=$(ec2-describe-group --show-empty-fields | awk '$1 == "GROUP" \
     && $3 == "'$HOST_GROUP'" { print $3 }')
   if [[ -z $HOST_GROUPID ]]; then
@@ -166,7 +165,7 @@ start_host() {
     echo "-- Added keypair: $HOST_KEY"
   fi
   
-  echo "-- Launching host"
+  echo "-- Launching bundling host"
   HOST_IID=$(ec2-run-instances --show-empty-fields $HOST_AMI \
     --group $HOST_GROUP --key $HOST_KEY --instance-type $HOST_ITYPE \
     --availability-zone $AVAILABILITY_ZONE \
@@ -178,7 +177,7 @@ start_host() {
       | awk '$1 == "INSTANCE" { print $4 }')
   done
   
-  echo "-- Uploading keys"
+  echo "-- Uploading keys to bundling host"
   false
   until [[ $? == 0 ]]; do
     sleep 5
@@ -196,7 +195,7 @@ start_host() {
   "x86_64") EPHEMERAL_STORE='/dev/sdb'  ;;
   esac
   
-  echo "-- Connecting to host"
+  echo "-- Connecting to bundling host"
 	cat <<-SETUP | ssh -o "StrictHostKeyChecking no" -i "id_rsa-$HOST_KEY" root@$HOST_IADDRESS
 		echo "-- Preparing host for bundling operations"
 		pacman --noconfirm -Syu
