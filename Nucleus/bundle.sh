@@ -141,10 +141,12 @@ sed -i -r "s/#(UseDNS|PasswordAuthentication) yes/\1 no/" \
 sed -i -r "s/#(Server)/\1/" $ROOT/etc/pacman.d/mirrorlist
 
 echo "-- Installing EC2 kernel modules"
-cd $ROOT/lib/modules
-curl -s http://static.iphash.net/ec2/$ARCH/2.6.21.7-2.fc8xen.cpio.lzma \
-  | lzma -d | cpio -idm
-cd -
+scp -o "StrictHostKeyChecking no" -i "/tmp/id_rsa-$KERNEL_KEY" \
+  "ubuntu@$KERNEL_IADDRESS:/mnt/$MODULES_ARCHIVE" \
+  /tmp
+tar --extract --gzip \
+  --atime-preserve --preserve-permissions --preserve-order --same-owner \
+  --file "/tmp/$MODULES_ARCHIVE" --directory "$ROOT/lib/modules"
 
 echo "-- Tearing down environment"
 umount "$ROOT/"{"proc","sys","dev","var/cache/pacman"}

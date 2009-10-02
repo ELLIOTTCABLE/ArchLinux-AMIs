@@ -5,6 +5,9 @@ AVAILABILITY_ZONE="us-east-1a"
 HOST_GROUP="__bundling-host__"
 HOST_KEY=$HOST_GROUP
 
+KERNEL_GROUP="__kernel-host__"
+KERNEL_KEY=$KERNEL_GROUP
+
 GROUP="__ami-testing__"
 KEY=$GROUP
 
@@ -26,6 +29,8 @@ if [[ $3 == "x86_64" ]]; then
   ARCH="x86_64"
   EC2_ARCH="x86_64"
   ITYPE="m1.large"
+  KERNEL_ARCH="amd64"
+  KERNEL_AMI="ami-1a658573"
   AKI="aki-9c1efef5"
   ARI="ari-901efef9"
 else
@@ -36,6 +41,8 @@ else
   ARCH="i386"
   EC2_ARCH="i686"
   ITYPE="m1.small"
+  KERNEL_ARCH="i386"
+  KERNEL_AMI="ami-fa658593"
   AKI="aki-841efeed"
   ARI="ari-9a1efef3"
 fi
@@ -67,6 +74,63 @@ bundle() {
     echo "-- Added keypair: $KEY"
   fi
   
+  echo "-- Preparing EC2 environment for the kernel host"
+  KERNEL_GROUPID=$(ec2-describe-group --show-empty-fields | awk '$1 == "GROUP" \
+    && $3 == "'$KERNEL_GROUP'" { print $3 }')
+  if [[ -z $KERNEL_GROUPID ]]; then
+    ec2-add-group --show-empty-fields $KERNEL_GROUP \
+      -d "Instances dedicated to bundling AMIs" || exit 1
+    ec2-authorize --show-empty-fields $KERNEL_GROUP \
+      --protocol tcp --port-range 22 || exit 1
+    echo "-- Added security group: $KERNEL_GROUP"
+  fi
+  
+  KERNEL_KEYID=$(ec2-describe-keypairs --show-empty-fields \
+    | awk '$1 == "KEYPAIR" && $2 == "'$KERNEL_KEY'" { print $2 }')
+  if [[ -z $KERNEL_KEYID || ! -f "id_rsa-$KERNEL_KEY" ]]; then
+    ec2-delete-keypair --show-empty-fields $KERNEL_KEY
+    rm -f "id_rsa-$KERNEL_KEY"
+    ec2-add-keypair --show-empty-fields $KERNEL_KEY \
+      > "id_rsa-$KERNEL_KEY" || exit 1
+    chmod 400 "id_rsa-$KERNEL_KEY" || exit 1
+    echo "-- Added keypair: $KERNEL_KEY"
+  fi
+  
+  echo "-- Preparing kernel host"
+  KERNEL_IID=$(ec2-run-instances --group $KERNEL_GROUP --key $KERNEL_KEY \
+    --availability-zone $AVAILABILITY_ZONE \
+    --instance-type $ITYPE $KERNEL_AMI | awk '/INSTANCE/ { print $2 }')
+  KERNEL_IADDRESS="(nil)"
+  while [[ $KERNEL_IADDRESS == "(nil)" ]]; do
+    KERNEL_IADDRESS=$(ec2-describe-instances --show-empty-fields $KERNEL_IID \
+      | awk '$1 == "INSTANCE" { print $4 }')
+  done
+  
+  echo "-- Connecting to kernel host"
+  false
+  until [[ $? == 0 ]]; do
+    sleep 5
+		ssh -o "StrictHostKeyChecking no" -i "id_rsa-$KERNEL_KEY" ubuntu@$KERNEL_IADDRESS <<-ITESTING
+			sudo apt-get update
+			echo "-- Installing kernel"
+			sudo apt-get install wireless-crda
+		ITESTING
+  done
+  
+  MODULES_ARCHIVE=$(
+		ssh -o "StrictHostKeyChecking no" -i "id_rsa-$KERNEL_KEY" ubuntu@$KERNEL_IADDRESS <<-ITESTING | tail -n1
+			cd /mnt
+			sudo wget -q http://ppa.launchpad.net/timg-tpi/ubuntu/pool/main/l/linux-ec2/linux-image-\$(uname -r)_2.6.31-300.2_${KERNEL_ARCH}.deb
+			sudo dpkg -i linux-image-\$(uname -r)_2.6.31-300.2_${KERNEL_ARCH}.deb
+			echo "-- Packaging kernel modules "
+			sudo tar --create --gzip \
+			  --atime-preserve --preserve-permissions --preserve-order --same-owner \
+			  --file "/mnt/\$(uname -r).tar.gz" \
+			  --directory "/lib/modules" -- "\$(uname -r)"
+			echo "\$(uname -r).tar.gz"
+		ITESTING
+  )
+  
   if [[ -z $HOST_IID ]]; then
     echo "-- No bundling host exists, instantiating one"
     STARTED_HOST='yes'
@@ -79,6 +143,12 @@ bundle() {
       | awk '$1 == "INSTANCE" { print $4 }')
   done
   
+  echo "-- Uploading kernel host key to bundling host"
+  # TODO: Get rid of these file requirements; take envvars if possible
+  scp -o "StrictHostKeyChecking no" -i "id_rsa-$HOST_KEY" \
+    "id_rsa-$KERNEL_KEY" \
+    root@$HOST_IADDRESS:/tmp/
+  
   echo "-- Connecting to bundling host"
   NAME=$(
 		cat "-" "./$2/bundle.sh" <<-SETUP | ssh -o "StrictHostKeyChecking no" -i "id_rsa-$HOST_KEY" root@$HOST_IADDRESS | tail -n1
@@ -88,6 +158,8 @@ bundle() {
 			AVAILABILITY_ZONE="$AVAILABILITY_ZONE"
 			HOST_GROUP="$HOST_GROUP"
 			HOST_KEY="$HOST_KEY"
+			KERNEL_GROUP="$KERNEL_GROUP"
+			KERNEL_KEY="$KERNEL_KEY"
 			KEY="$KEY"
 			GROUP="$GROUP"
 			BUCKET="$BUCKET"
@@ -98,8 +170,12 @@ bundle() {
 			ARCH="$ARCH"
 			EC2_ARCH="$EC2_ARCH"
 			ITYPE="$ITYPE"
+			KERNEL_ARCH="$KERNEL_ARCH"
+			KERNEL_AMI="$KERNEL_AMI"
 			AKI="$AKI"
 			ARI="$ARI"
+			KERNEL_IADDRESS="$KERNEL_IADDRESS"
+			MODULES_ARCHIVE="$MODULES_ARCHIVE"
 			echo "-- Executing \\\`$2/bundle.sh\\\` on the bundling host"
 		SETUP
   )
