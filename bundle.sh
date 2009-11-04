@@ -203,7 +203,8 @@ start_host() {
 		
 		pacman --noconfirm -S unzip rsync lzma cpio
 		
-		pacman --noconfirm -U http://arm.kh.nu/extra::2009-9-13/os/$EC2_ARCH/ruby-1.8.7_p174-1-$EC2_ARCH.pkg.tar.gz
+		# FIXME: This will *have* to be updated with the ARM2 conversion is done
+		pacman --noconfirm -U http://arm.kh.nu/old/extra/os/$EC2_ARCH/ruby-1.8.7_p174-1-$EC2_ARCH.pkg.tar.gz
 		
 		pacman --noconfirm -Sc
 		
