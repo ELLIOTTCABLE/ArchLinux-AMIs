@@ -45,7 +45,7 @@ bundle() {
   
   HOST_IID=$($0 host get $HOST_ARCH)
   
-  echo "-- Preparing EC2 environment"
+  echo "== Preparing EC2 environment"
   GROUPID=$(ec2-describe-group --show-empty-fields | awk '$1 == "GROUP" \
     && $3 == "'$GROUP'" { print $3 }')
   if [[ -z $GROUPID ]]; then
@@ -76,12 +76,12 @@ bundle() {
   HOST_IADDRESS=$(ec2-describe-instances --show-empty-fields $HOST_IID \
     | awk '$1 == "INSTANCE" { print $4 }')
   
-  echo "-- Uploading elements to bundling host"
+  echo "== Uploading elements to bundling host"
   scp -qrp -o "StrictHostKeyChecking no" -i "id_rsa-$HOST_KEY" \
     "./$2" \
     root@$HOST_IADDRESS:/tmp/
   
-  echo "-- Connecting to bundling host"
+  echo "== Connecting to bundling host"
   NAME=$(
 		cat "-" "./$2/bundle.sh" <<-SETUP | ssh -o "StrictHostKeyChecking no" -i "id_rsa-$HOST_KEY" root@$HOST_IADDRESS | tail -n1
 			echo "-- Preparing bundling host"
@@ -108,11 +108,11 @@ bundle() {
 		SETUP
   )
   
-  echo "-- Registering $NAME as an AMI"
+  echo "== Registering $NAME as an AMI"
   AMI=$(ec2-register --show-empty-fields "$BUCKET/$NAME.manifest.xml" \
     | awk '/IMAGE/ { print $2 }')
   
-  echo "-- Instantiating $AMI to test"
+  echo "== Instantiating $AMI to test"
   IID=$(ec2-run-instances --group $GROUP --key $KEY \
     --availability-zone $AVAILABILITY_ZONE \
     --instance-type $ITYPE $AMI | awk '/INSTANCE/ { print $2 }')
@@ -122,7 +122,7 @@ bundle() {
       | awk '$1 == "INSTANCE" { print $4 }')
   done
   
-  echo "-- Connecting to testing instance"
+  echo "== Connecting to testing instance"
   false
   until [[ $? == 0 ]]; do
     sleep 5
@@ -147,7 +147,7 @@ bundle() {
 }
 
 start_host() {
-  echo "-- Preparing EC2 environment for bundling host"
+  echo "== Preparing EC2 environment for bundling host"
   HOST_GROUPID=$(ec2-describe-group --show-empty-fields | awk '$1 == "GROUP" \
     && $3 == "'$HOST_GROUP'" { print $3 }')
   if [[ -z $HOST_GROUPID ]]; then
@@ -169,7 +169,7 @@ start_host() {
     echo "-- Added keypair: $HOST_KEY"
   fi
   
-  echo "-- Launching bundling host"
+  echo "== Launching bundling host"
   HOST_IID=$(ec2-run-instances --show-empty-fields $HOST_AMI \
     --group $HOST_GROUP --key $HOST_KEY --instance-type $HOST_ITYPE \
     --availability-zone $AVAILABILITY_ZONE \
@@ -181,7 +181,7 @@ start_host() {
       | awk '$1 == "INSTANCE" { print $4 }')
   done
   
-  echo "-- Uploading keys to bundling host"
+  echo "== Uploading keys to bundling host"
   false
   until [[ $? == 0 ]]; do
     sleep 5
@@ -199,7 +199,7 @@ start_host() {
   "x86_64") EPHEMERAL_STORE='/dev/sdb'  ;;
   esac
   
-  echo "-- Connecting to bundling host"
+  echo "== Connecting to bundling host"
 	cat <<-SETUP | ssh -o "StrictHostKeyChecking no" -i "id_rsa-$HOST_KEY" root@$HOST_IADDRESS
 		echo "-- Preparing host for bundling operations"
 		pacman --noconfirm -Syu
@@ -227,7 +227,7 @@ start_host() {
 }
 
 stop_host() {
-  echo "-- Terminating the $HOST_ARCH bundling host"
+  echo "== Terminating the $HOST_ARCH bundling host"
   IID=$(get_host)
   if [[ -n $IID ]]; then
     ec2-terminate-instances --show-empty-fields $IID
