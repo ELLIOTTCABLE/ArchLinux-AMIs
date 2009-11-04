@@ -114,11 +114,42 @@ if [ ! -f /usr/aws/ec2/.instantiated ]; then
     /root/.ssh/authorized_keys \
     http://169.254.169.254/1.0/meta-data/public-keys/0/openssh-key
   
-  mkdir -p /usr/aws/ec2/
-  touch /usr/aws/ec2/.instantiated
+  mkdir -p /usr/aws/ec2/ && touch /usr/aws/ec2/.instantiated
 fi
 
 EOF
+
+cat <<'EOF' > $ROOT/etc/profile.d/ami.sh
+if [ ! -f /usr/aws/ec2/.introduced ]; then
+  
+  cat <<'INTRODUCTION'
+-----------------------------------------------------------------------------
+            .-.        Welcome to your Arch Linux AMI!        .-.
+           /   \         .-.                     .-.         /   \
+\         /     \       /   \     .-.   .-.     /   \       /     \         /
+ \       /       \     /     \   /   \ /   \   /     \     /       \       /
+  \     /         \   /       `-'     v     `-'       \   /         \     /
+   \   /           `-'                                 `-'           \   /
+    `-'                                                               `-'
+     Please note, there are things you need to know about this machine
+     before you start using it! You can view the README for the
+     ArchLinux-AMIs project on GitHub, available at the following URL:
+
+                http://github.com/elliottcable/ArchLinux-AMIs/
+
+     Most importantly,
+     - You should not re-bundle this AMI without reading the re-bundling
+       instructions in the above-linked README
+     - No access is denied by /etc/hosts.deny, so your EC2 security
+       group should be configured as restrictively as possible
+-----------------------------------------------------------------------------
+INTRODUCTION
+  
+  mkdir -p /usr/aws/ec2/ && touch /usr/aws/ec2/.introduced
+fi
+
+EOF
+chmod +x "$ROOT/etc/profile.d/ami.sh"
 
 cat <<EOF > $ROOT/etc/inittab
 #
