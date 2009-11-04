@@ -155,14 +155,14 @@ echo "-- Bundling image"
   --user "$(cat /tmp/account_number)" \
   --arch $ARCH --kernel $AKI --ramdisk $ARI \
   --size 10240 --fstab fstab --volume $ROOT --no-inherit \
-  --destination "/mnt" --prefix "$NAME" --batch --debug
+  --destination "/mnt" --prefix "$NAME" --batch
 
 echo "-- Uploading image"
 ./ec2-ami-tools/bin/ec2-upload-bundle \
   --access-key "$(cat /tmp/access_key)" \
   --secret-key "$(cat /tmp/secret_key)" \
   --bucket $BUCKET \
-  --manifest "/mnt/${NAME}.manifest.xml" --batch --debug --retry
+  --manifest "/mnt/${NAME}.manifest.xml" --batch --retry
 
 rm -rf /mnt/$NAME*
 rm -rf /mnt/img-mnt
