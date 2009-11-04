@@ -73,17 +73,21 @@ bundle() {
     start_host || exit 1
   fi
   
-  HOST_IADDRESS="(nil)"
-  while [[ $HOST_IADDRESS == "(nil)" ]]; do
-    HOST_IADDRESS=$(ec2-describe-instances --show-empty-fields $HOST_IID \
-      | awk '$1 == "INSTANCE" { print $4 }')
-  done
+  HOST_IADDRESS=$(ec2-describe-instances --show-empty-fields $HOST_IID \
+    | awk '$1 == "INSTANCE" { print $4 }')
+  
+  echo "-- Uploading elements to bundling host"
+  scp -qrp -o "StrictHostKeyChecking no" -i "id_rsa-$HOST_KEY" \
+    "./$2" \
+    root@$HOST_IADDRESS:/tmp/
   
   echo "-- Connecting to bundling host"
   NAME=$(
 		cat "-" "./$2/bundle.sh" <<-SETUP | ssh -o "StrictHostKeyChecking no" -i "id_rsa-$HOST_KEY" root@$HOST_IADDRESS | tail -n1
 			echo "-- Preparing bundling host"
 			source /root/.profile
+			
+			ELEMENTS="/tmp/$2"
 			
 			AVAILABILITY_ZONE="$AVAILABILITY_ZONE"
 			HOST_GROUP="$HOST_GROUP"
