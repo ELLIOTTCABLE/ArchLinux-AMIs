@@ -1,0 +1,11 @@
+#
+# /etc/inittab
+#
+id:3:initdefault:
+rc::sysinit:/etc/rc.sysinit
+rs:S1:wait:/etc/rc.single
+rm:2345:wait:/etc/rc.multi
+rh:06:wait:/etc/rc.shutdown
+su:S:wait:/sbin/sulogin -p
+ca::ctrlaltdel:/sbin/shutdown -t3 -r now
+# End of file

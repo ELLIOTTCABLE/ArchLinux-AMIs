@@ -1,0 +1,9 @@
+killall nash-hotplug
+if [ ! -f /usr/aws/ec2/.instantiated ]; then
+  mkdir /root/.ssh
+  curl --retry 3 --retry-delay 5 --silent --fail -o \
+    /root/.ssh/authorized_keys \
+    http://169.254.169.254/1.0/meta-data/public-keys/0/openssh-key
+  
+  mkdir -p /usr/aws/ec2/ && touch /usr/aws/ec2/.instantiated
+fi

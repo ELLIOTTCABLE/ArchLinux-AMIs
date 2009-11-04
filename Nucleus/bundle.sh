@@ -29,24 +29,6 @@ TYPE="Nucleus"
 NAME="ArchLinux-$ARCH-$TYPE-$RELEASE"
 ROOT="/mnt/$NAME.root"
 
-cat <<EOF > fstab
-/dev/sda1   /             ext3  defaults 1 1
-#/dev/sda2  /mnt          ext3  defaults 0 0
-/dev/sda3   swap          swap  defaults 0 0
-#/dev/sdb   /mnt/store-1  ext3  defaults 0 0
-#/dev/sdc   /mnt/store-2  ext3  defaults 0 0
-#/dev/sdd   /mnt/store-3  ext3  defaults 0 0
-#/dev/sde   /mnt/store-4  ext3  defaults 0 0
-
-### EBS Volumes ###
-
-none /proc proc defaults 0 0
-none /sys sysfs defaults 0 0
-none /dev/pts devpts gid=5,mode=620 0 0
-none /dev/shm tmpfs defaults 0 0
-
-EOF
-
 echo "-- Creating filesystem"
 mkdir -p "$ROOT"
 
@@ -69,77 +51,17 @@ pacman --noconfirm --noprogressbar --config="/etc/pacman.conf" \
 
 ldconfig -r "$ROOT"
 
-echo "-- Configuring some system files"
-cat <<EOF > $ROOT/etc/rc.conf
-#
-# /etc/rc.conf - Main Configuration for Arch Linux
-#
-
-LOCALE="en_US.UTF-8"
-HARDWARECLOCK="UTC"
-USEDIRECTISA="no"
-TIMEZONE="UTC"
-KEYMAP="us"
-USECOLOR="no"
-MOD_AUTOLOAD="yes"
-USELVM="no"
-
-HOSTNAME="myhost"
-
-eth0="dhcp"
-INTERFACES=(eth0)
-ROUTES=()
-
-DAEMONS=(syslog-ng network crond sshd)
-
-EOF
-
-cat <<EOF > $ROOT/etc/hosts.deny
-#
-# /etc/hosts.deny
-#
-
-# Nothing to see here, move along…
-# Amazon’s EC2 firewall handles all of our security.
-
-# End of file
-
-EOF
-
-cat <<EOF >> $ROOT/etc/rc.local
-killall nash-hotplug
-if [ ! -f /usr/aws/ec2/.instantiated ]; then
-  mkdir /root/.ssh
-  curl --retry 3 --retry-delay 5 --silent --fail -o \
-    /root/.ssh/authorized_keys \
-    http://169.254.169.254/1.0/meta-data/public-keys/0/openssh-key
-  
-  mkdir -p /usr/aws/ec2/ && touch /usr/aws/ec2/.instantiated
-fi
-
-EOF
-
-cp -p "$ELEMENTS/etc/profile.d/ami.sh" "$ROOT/etc/profile.d/ami.sh"
-chmod +x "$ROOT/etc/profile.d/ami.sh" # TODO: Is this necessary? Does the original scp, and cp, preserve permissions?
-
-cat <<EOF > $ROOT/etc/inittab
-#
-# /etc/inittab
-#
-id:3:initdefault:
-rc::sysinit:/etc/rc.sysinit
-rs:S1:wait:/etc/rc.single
-rm:2345:wait:/etc/rc.multi
-rh:06:wait:/etc/rc.shutdown
-su:S:wait:/sbin/sulogin -p
-ca::ctrlaltdel:/sbin/shutdown -t3 -r now
-# End of file
-
-EOF
+echo "-- Copying over configuration files"
+cp -p {"$ELEMENTS","$ROOT"}"/etc/inittab"
+cp -p {"$ELEMENTS","$ROOT"}"/etc/rc.conf"
+cp -p {"$ELEMENTS","$ROOT"}"/etc/rc.local"
+cp -p {"$ELEMENTS","$ROOT"}"/etc/hosts.deny"
+cp -p {"$ELEMENTS","$ROOT"}"/etc/profile.d/ami.sh"
 
 sed -i -r 's/#(en_US\.UTF-8)/\1/' $ROOT/etc/locale.gen
 sed -i -r "s/#(UseDNS|PasswordAuthentication) yes/\1 no/" \
   $ROOT/etc/ssh/sshd_config
+# TODO: Remove off-continent mirrors, and run rankmirrors
 sed -i -r "s/#(Server)/\1/" $ROOT/etc/pacman.d/mirrorlist
 
 echo "-- Installing EC2 kernel modules"
@@ -156,7 +78,7 @@ echo "-- Bundling image"
   --cert /tmp/cert-*.pem --privatekey /tmp/pk-*.pem \
   --user "$(cat /tmp/account_number)" \
   --arch $ARCH --kernel $AKI --ramdisk $ARI \
-  --size 10240 --fstab fstab --volume $ROOT --no-inherit \
+  --size 10240 --fstab "$ELEMENTS/fstab" --volume $ROOT --no-inherit \
   --destination "/mnt" --prefix "$NAME" --batch
 
 echo "-- Uploading image"
