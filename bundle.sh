@@ -10,36 +10,6 @@ KEY=$GROUP
 
 BUCKET="arch-linux"
 
-if [[ $3 == "both" ]]; then
-  echo "==  i386  =="
-  $0 $1 $2 'i386' || exit $?
-  echo "== x86_64 =="
-  $0 $1 $2 'x86_64' || exit $?
-  exit 0
-fi
-
-if [[ $3 == "x86_64" ]]; then
-  HOST_ARCH="x86_64"
-  HOST_EC2_ARCH="x86_64"
-  HOST_AMI="ami-1b799e72"
-  HOST_ITYPE="m1.large"
-  ARCH="x86_64"
-  EC2_ARCH="x86_64"
-  ITYPE="m1.large"
-  AKI="aki-9c1efef5"
-  ARI="ari-901efef9"
-else
-  HOST_ARCH="i386"
-  HOST_EC2_ARCH="i686"
-  HOST_AMI="ami-05799e6c"
-  HOST_ITYPE="m1.small"
-  ARCH="i386"
-  EC2_ARCH="i686"
-  ITYPE="m1.small"
-  AKI="aki-841efeed"
-  ARI="ari-9a1efef3"
-fi
-
 bundle() {
   STARTED_HOST=''
   
@@ -144,6 +114,16 @@ bundle() {
   fi
   
   echo "** ${NAME} registered: ${AMI}"
+}
+
+host() {
+  case $2 in
+    "restart")  stop_host  "$@"; start_host "$@"  ;;
+    "start")    start_host "$@"                   ;;
+    "stop")     stop_host  "$@"                   ;;
+    "get")      get_host   "$@"                   ;;
+    *)          usage      "$@"                   ;;
+  esac
 }
 
 start_host() {
@@ -276,10 +256,8 @@ usage() {
 		    `basename $0` host <operation> [architecture]
 		    <operation> may be one of (start|stop|restart|get)
 		  
-		  [architecture] may be one of (i386|x86_64|both). If omitted or any other
-		                 value, i386 will be used (this means "i686", "x86", and
-		                 "x86_32" are all valid alternatives to "i386", according
-		                 to your preference.)
+		  [architecture] may be one of (i386|x86_64|both). If omitted, defaults to
+		    operating on both.
 		  
 		Notes:
 		  If no bundling host is running, than one will be launched before any
@@ -301,15 +279,38 @@ usage() {
   exit 1
 }
 
-host() {
-  case $2 in
-    "restart")  stop_host  "$@"; start_host "$@"  ;;
-    "start")    start_host "$@"                   ;;
-    "stop")     stop_host  "$@"                   ;;
-    "get")      get_host   "$@"                   ;;
-    *)          usage      "$@"                   ;;
-  esac
-}
+case $3 in
+  "32"|"x86"|"i386"|"i686")
+    HOST_ARCH="i386"
+    HOST_EC2_ARCH="i686"
+    HOST_AMI="ami-05799e6c"
+    HOST_ITYPE="m1.small"
+    ARCH="i386"
+    EC2_ARCH="i686"
+    ITYPE="m1.small"
+    AKI="aki-841efeed"
+    ARI="ari-9a1efef3"
+  ;;
+  "64"|"x64"|"x86_64"|"x86-64"|"amd64")
+    HOST_ARCH="x86_64"
+    HOST_EC2_ARCH="x86_64"
+    HOST_AMI="ami-1b799e72"
+    HOST_ITYPE="m1.large"
+    ARCH="x86_64"
+    EC2_ARCH="x86_64"
+    ITYPE="m1.large"
+    AKI="aki-9c1efef5"
+    ARI="ari-901efef9"
+  ;;
+  ""|"both")
+    echo "==  i386  =="
+    $0 $1 $2 'i386' || exit $?
+    echo "== x86_64 =="
+    $0 $1 $2 'x86_64' || exit $?
+    exit 0
+  ;;
+  *) usage "$@" ;;
+esac
 
 case $1 in
   "bundle") bundle "$@"   ;;
