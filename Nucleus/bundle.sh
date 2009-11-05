@@ -76,7 +76,7 @@ echo "-- Tearing down environment"
 umount "$ROOT/"{"proc","sys","dev","var/cache/pacman"}
 
 echo "-- Bundling image"
-./ec2-ami-tools/bin/ec2-bundle-vol \
+$EC2_AMITOOL_HOME/bin/ec2-bundle-vol \
   --cert /tmp/cert-*.pem --privatekey /tmp/pk-*.pem \
   --user "$(cat /tmp/account_number)" \
   --arch $ARCH --kernel $AKI --ramdisk $ARI \
@@ -84,7 +84,7 @@ echo "-- Bundling image"
   --destination "/mnt" --prefix "$NAME" --batch
 
 echo "-- Uploading image"
-./ec2-ami-tools/bin/ec2-upload-bundle \
+$EC2_AMITOOL_HOME/bin/ec2-upload-bundle \
   --access-key "$(cat /tmp/access_key)" \
   --secret-key "$(cat /tmp/secret_key)" \
   --bucket $BUCKET \
