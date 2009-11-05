@@ -81,7 +81,8 @@ bundle() {
   if [[ -z $HOST_IID ]]; then
     echo "== No bundling host exists, instantiating one"
     STARTED_HOST='yes'
-    host_start || exit 1
+    host_setup "$@" || exit 1
+    host_start "$@" || exit 1
   fi
   
   HOST_IADDRESS=$(ec2-describe-instances --show-empty-fields $HOST_IID \
@@ -151,7 +152,8 @@ bundle() {
   if [[ -n $STARTED_HOST ]]; then
     echo "-- Terminating the bundling host we launched"
     STARTED_HOST=''
-    host_stop || exit 1
+    host_stop     "$@" || exit 1
+    host_teardown "$@" || exit 1
   fi
   
   echo "** ${NAME} registered: ${AMI}"
@@ -163,13 +165,14 @@ bundle() {
 
 host() {
   case $2 in
-    "setup")    host_setup    "$@"                  ;;
-    "teardown") host_teardown "$@"                  ;;
-    "restart")  host_stop     "$@"; host_start "$@" ;;
-    "start")    host_start    "$@"                  ;;
-    "stop")     host_stop     "$@"                  ;;
-    "get")      host_get      "$@"                  ;;
-    *)          usage         "$@"                  ;;
+    "setup")    host_setup    "$@" || exit 1                                ;;
+    "teardown") host_teardown "$@" || exit 1                                ;;
+    "restart")  host_stop     "$@" || exit 1; host_teardown "$@" || exit 1  
+                host_setup    "$@" || exit 1; host_start    "$@" || exit 1  ;;
+    "start")    host_setup    "$@" || exit 1; host_start    "$@" || exit 1  ;;
+    "stop")     host_stop     "$@" || exit 1; host_teardown "$@" || exit 1  ;;
+    "get")      host_get      "$@" || exit 1                                ;;
+    *)          usage         "$@"                                          ;;
   esac
 }
 
@@ -214,8 +217,6 @@ host_teardown() {
 }
 
 host_start() {
-  host_setup "$@"
-  
   echo "== Launching bundling host"
   HOST_IID=$(ec2-run-instances --show-empty-fields $HOST_AMI \
     --group $HOST_GROUP --key $HOST_KEY --instance-type $HOST_ITYPE \
@@ -304,8 +305,6 @@ host_stop() {
         | awk '$1 == "INSTANCE" { print $6 }')
     done
   fi
-  
-  host_teardown "$@"
   
   true
 }
