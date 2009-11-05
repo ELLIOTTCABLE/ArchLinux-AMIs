@@ -229,7 +229,7 @@ start_host() {
 		
 		pacman --noconfirm -Sc
 		
-		mount -t ext3 $EPHEMERAL_STORE /mnt
+		mount -t ext3 "$EPHEMERAL_STORE" /mnt
 		
 		cd /tmp
 		wget -q http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.zip
