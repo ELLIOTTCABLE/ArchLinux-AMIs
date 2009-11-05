@@ -13,7 +13,7 @@ BUCKET="arch-linux"
 usage() {
   
 	cat <<-USAGE
-		Usage: `basename $0` <command> [architecture]
+		Usage: `basename $0` <command> <argument> [architecture]
 		  <command> may be one of (bundle|host)
 		  
 		  "bundle" expects the following form:
