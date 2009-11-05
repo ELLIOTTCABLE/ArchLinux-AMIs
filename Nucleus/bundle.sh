@@ -63,8 +63,6 @@ cp -p "/tmp/mirrorlist.ranked" "$ROOT/etc/pacman.d/mirrorlist"
 sed -i -r 's/#(en_US\.UTF-8)/\1/' $ROOT/etc/locale.gen
 sed -i -r "s/#(UseDNS|PasswordAuthentication) yes/\1 no/" \
   $ROOT/etc/ssh/sshd_config
-# TODO: Remove off-continent mirrors, and run rankmirrors
-sed -i -r "s/#(Server)/\1/" $ROOT/etc/pacman.d/mirrorlist
 
 echo "-- Installing EC2 kernel modules"
 cd $ROOT/lib/modules
