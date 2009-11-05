@@ -231,12 +231,13 @@ start_host() {
 		
 		mount -t ext3 $EPHEMERAL_STORE /mnt
 		
+		cd /tmp
 		wget -q http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.zip
 		unzip -oq ec2-ami-tools.zip
-		mv ec2-ami-tools-* ec2-ami-tools
+		mv ec2-ami-tools-* /mnt/ec2-ami-tools
 		
 		cat <<'PROFILE' > /root/.profile
-			export EC2_AMITOOL_HOME="\$(pwd)/ec2-ami-tools"
+			export EC2_AMITOOL_HOME="/mnt/ec2-ami-tools"
 		PROFILE
 	SETUP
   
