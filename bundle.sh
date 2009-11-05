@@ -75,7 +75,7 @@ bundle() {
   STARTED_HOST=''
   HOST_IID=$($0 host get $HOST_ARCH)
   if [[ -z $HOST_IID ]]; then
-    echo "-- No bundling host exists, instantiating one"
+    echo "== No bundling host exists, instantiating one"
     STARTED_HOST='yes'
     start_host || exit 1
   fi
@@ -218,10 +218,11 @@ start_host() {
   
   echo "== Connecting to bundling host"
 	cat <<-SETUP | ssh -o "StrictHostKeyChecking no" -i "id_rsa-$HOST_KEY" root@$HOST_IADDRESS
-		echo "-- Preparing host for bundling operations"
+		echo "== Preparing host for bundling operations"
 		cd /tmp
 		mount -t ext3 "$EPHEMERAL_STORE" /mnt
 		
+		echo "-- Constructing pacman mirrorlist"
 		wget -O mirrorlist "http://repos.archlinux.org/wsvn/packages/pacman-mirrorlist/repos/core-$HOST_EC2_ARCH/mirrorlist?op=dl&rev=0"
 		# TODO: Use the API endpoint to leave in the European mirrors if appropriate
 		cat mirrorlist | awk '\$1 == "#" { \
@@ -237,6 +238,7 @@ start_host() {
 		
 		cp -p mirrorlist.ranked /etc/pacman.d/mirrorlist
 		
+		echo "-- Updating software on bundling host"
 		pacman --noconfirm -Syu
 		pacman --noconfirm -Syu
 		
@@ -247,6 +249,7 @@ start_host() {
 		
 		pacman --noconfirm -Sc
 		
+		echo "-- Installing EC2 AMI tools"
 		wget -q http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.zip
 		unzip -oq ec2-ami-tools.zip
 		mv ec2-ami-tools-* /mnt/ec2-ami-tools
