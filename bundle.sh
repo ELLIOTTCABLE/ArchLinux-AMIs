@@ -24,7 +24,7 @@ usage() {
 		    `basename $0` host <operation> [architecture]
 		    <operation> may be one of (start|stop|restart|get)
 		  
-		  [architecture] may be one of (i386|x86_64|both). If omitted, defaults to
+		  [architecture] may be one of (i686|x86_64|both). If omitted, defaults to
 		    operating on both.
 		  
 		Notes:
@@ -38,7 +38,7 @@ usage() {
 		Examples:
 		  `basename $0` host start
 		  `basename $0` host start x86_64
-		  `basename $0` bundle Nucleus i386
+		  `basename $0` bundle Nucleus i686
 		  `basename $0` bundle Atom
 		  `basename $0` host stop both
 	USAGE
@@ -212,7 +212,7 @@ start_host() {
   done
   
   case $HOST_ARCH in
-  "i386")   EPHEMERAL_STORE='/dev/sda2' ;;
+  "i686")   EPHEMERAL_STORE='/dev/sda2' ;;
   "x86_64") EPHEMERAL_STORE='/dev/sdb'  ;;
   esac
   
@@ -223,12 +223,12 @@ start_host() {
 		mount -t ext3 "$EPHEMERAL_STORE" /mnt
 		
 		echo "-- Constructing pacman mirrorlist"
-		wget -O mirrorlist "http://repos.archlinux.org/wsvn/packages/pacman-mirrorlist/repos/core-$HOST_EC2_ARCH/mirrorlist?op=dl&rev=0"
+		wget -O mirrorlist "http://repos.archlinux.org/wsvn/packages/pacman-mirrorlist/repos/core-$HOST_ARCH/mirrorlist?op=dl&rev=0"
 		# TODO: Use the API endpoint to leave in the European mirrors if appropriate
 		cat mirrorlist | awk '\$1 == "#" { \
 		  if(\$0 ~ "United States") {foo = 1} else {foo = 0} }; \
 		  {if(foo == 1) print }' | \
-		  sed -r 's/^#(Server)/\1/' | sed 's/@carch@/$HOST_EC2_ARCH/' \
+		  sed -r 's/^#(Server)/\1/' | sed 's/@carch@/$HOST_ARCH/' \
 		  > mirrorlist.regional
 		
 		wget -O bruenig-rankmirrors.tar.gz "http://github.com/bruenig/rankmirrors/tarball/25c28fd69785db6e83aee789e97134e1e3edfaa7"
@@ -245,7 +245,7 @@ start_host() {
 		pacman --noconfirm -S unzip rsync lzma cpio
 		
 		# FIXME: This will *have* to be updated with the ARM2 conversion is done
-		pacman --noconfirm -U http://arm.kh.nu/old/extra/os/$HOST_EC2_ARCH/ruby-1.8.7_p174-1-$HOST_EC2_ARCH.pkg.tar.gz
+		pacman --noconfirm -U http://arm.kh.nu/old/extra/os/$HOST_ARCH/ruby-1.8.7_p174-1-$HOST_ARCH.pkg.tar.gz
 		
 		pacman --noconfirm -Sc
 		
@@ -300,12 +300,12 @@ get_host() {
 
 case $3 in
   "32"|"x86"|"i386"|"i686")
-    HOST_ARCH="i386"
-    HOST_EC2_ARCH="i686"
+    HOST_ARCH="i686"
+    HOST_EC2_ARCH="i386"
     HOST_AMI="ami-05799e6c"
     HOST_ITYPE="m1.small"
-    ARCH="i386"
-    EC2_ARCH="i686"
+    ARCH="i686"
+    EC2_ARCH="i386"
     ITYPE="m1.small"
     AKI="aki-841efeed"
     ARI="ari-9a1efef3"
@@ -322,8 +322,8 @@ case $3 in
     ARI="ari-901efef9"
   ;;
   ""|"both")
-    echo "==  i386  =="
-    $0 $1 $2 'i386' || exit $?
+    echo "==  i686  =="
+    $0 $1 $2 'i686' || exit $?
     echo "== x86_64 =="
     $0 $1 $2 'x86_64' || exit $?
     exit 0

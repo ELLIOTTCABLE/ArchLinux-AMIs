@@ -68,7 +68,7 @@ sed -i -r "s/#(Server)/\1/" $ROOT/etc/pacman.d/mirrorlist
 
 echo "-- Installing EC2 kernel modules"
 cd $ROOT/lib/modules
-curl -s http://static.iphash.net/ec2/$ARCH/2.6.21.7-2.fc8xen.cpio.lzma \
+curl -s http://static.iphash.net/ec2/$EC2_ARCH/2.6.21.7-2.fc8xen.cpio.lzma \
   | lzma -d | cpio -idm
 cd -
 
@@ -79,7 +79,7 @@ echo "-- Bundling image"
 $EC2_AMITOOL_HOME/bin/ec2-bundle-vol \
   --cert /tmp/cert-*.pem --privatekey /tmp/pk-*.pem \
   --user "$(cat /tmp/account_number)" \
-  --arch $ARCH --kernel $AKI --ramdisk $ARI \
+  --arch $EC2_ARCH --kernel $AKI --ramdisk $ARI \
   --size 10240 --fstab "$ELEMENTS/fstab" --volume $ROOT --no-inherit \
   --destination "/mnt" --prefix "$NAME" --batch
 
