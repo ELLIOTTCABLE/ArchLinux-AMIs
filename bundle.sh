@@ -22,7 +22,7 @@ usage() {
 		  
 		  "host" expects the following form:
 		    `basename $0` host <operation> [architecture]
-		    <operation> may be one of (start|stop|restart|get)
+		    <operation> may be one of (setup|start|stop|restart|teardown|get)
 		  
 		  [architecture] may be one of (i686|x86_64|both). If omitted, defaults to
 		    operating on both.
@@ -163,15 +163,17 @@ bundle() {
 
 host() {
   case $2 in
-    "restart")  stop_host  "$@"; start_host "$@"  ;;
-    "start")    start_host "$@"                   ;;
-    "stop")     stop_host  "$@"                   ;;
-    "get")      get_host   "$@"                   ;;
-    *)          usage      "$@"                   ;;
+    "setup")    host_setup    "$@"                  ;;
+    "teardown") host_teardown "$@"                  ;;
+    "restart")  stop_host     "$@"; start_host "$@" ;;
+    "start")    start_host    "$@"                  ;;
+    "stop")     stop_host     "$@"                  ;;
+    "get")      get_host      "$@"                  ;;
+    *)          usage         "$@"                  ;;
   esac
 }
 
-start_host() {
+host_setup() {
   echo "== Preparing EC2 environment for bundling host"
   HOST_GROUPID=$(ec2-describe-group --show-empty-fields | awk '$1 == "GROUP" \
     && $3 == "'$HOST_GROUP'" { print $3 }')
@@ -193,6 +195,26 @@ start_host() {
     chmod 400 "id_rsa-$HOST_KEY" || exit 1
     echo "-- Added keypair: $HOST_KEY"
   fi
+}
+
+host_teardown() {
+  HOST_IIDS=$(ec2-describe-instances --show-empty-fields \
+    | awk '$1 == "INSTANCE" && $7 == "'$HOST_GROUP'" && \
+      $6 != "terminated" { print $6 }')
+  if [[ -z $HOST_IIDS ]]; then
+    echo "-- There are no active bundling hosts, wiping groups and keys"
+    ec2-delete-group --show-empty-fields $HOST_GROUP
+    ec2-delete-keypair --show-empty-fields $HOST_KEY && \
+      rm -f "id_rsa-$HOST_KEY"
+    
+    ec2-delete-group --show-empty-fields $GROUP
+    ec2-delete-keypair --show-empty-fields $KEY && \
+      rm -f "id_rsa-$KEY"
+  fi
+}
+
+start_host() {
+  host_setup "$@"
   
   echo "== Launching bundling host"
   HOST_IID=$(ec2-run-instances --show-empty-fields $HOST_AMI \
@@ -283,19 +305,7 @@ stop_host() {
     done
   fi
   
-  HOST_IIDS=$(ec2-describe-instances --show-empty-fields \
-    | awk '$1 == "INSTANCE" && $7 == "'$HOST_GROUP'" && \
-      $6 != "terminated" { print $6 }')
-  if [[ -z $HOST_IIDS ]]; then
-    echo "-- There are no active bundling hosts, wiping groups and keys"
-    ec2-delete-group --show-empty-fields $HOST_GROUP
-    ec2-delete-keypair --show-empty-fields $HOST_KEY && \
-      rm -f "id_rsa-$HOST_KEY"
-    
-    ec2-delete-group --show-empty-fields $GROUP
-    ec2-delete-keypair --show-empty-fields $KEY && \
-      rm -f "id_rsa-$KEY"
-  fi
+  host_teardown "$@"
   
   true
 }
