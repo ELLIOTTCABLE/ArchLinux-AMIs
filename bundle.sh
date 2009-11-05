@@ -46,6 +46,10 @@ usage() {
   exit 1
 }
 
+# ================
+# = AMI bundling =
+# ================
+
 bundle() {
   TYPE="$2"
   if [[ ! -d "$TYPE" ]]; then usage "$@"; fi
@@ -152,6 +156,10 @@ bundle() {
   
   echo "** ${NAME} registered: ${AMI}"
 }
+
+# ============================
+# = Bundling host management =
+# ============================
 
 host() {
   case $2 in
@@ -297,6 +305,10 @@ get_host() {
     | awk '$1 == "INSTANCE" && $6 == "running" && $7 == "'$HOST_GROUP'" && \
       $10 == "'$HOST_ITYPE'" { print $2; exit }' || exit 1
 }
+
+# ====================
+# = Argument parsing =
+# ====================
 
 case $3 in
   "32"|"x86"|"i386"|"i686")
