@@ -219,6 +219,24 @@ start_host() {
   echo "== Connecting to bundling host"
 	cat <<-SETUP | ssh -o "StrictHostKeyChecking no" -i "id_rsa-$HOST_KEY" root@$HOST_IADDRESS
 		echo "-- Preparing host for bundling operations"
+		cd /tmp
+		mount -t ext3 "$EPHEMERAL_STORE" /mnt
+		
+		wget -O mirrorlist "http://repos.archlinux.org/wsvn/packages/pacman-mirrorlist/repos/core-$HOST_EC2_ARCH/mirrorlist?op=dl&rev=0"
+		# TODO: Use the API endpoint to leave in the European mirrors if appropriate
+		cat mirrorlist | awk '$1 == "#" { \
+		  if($0 ~ "United States") {foo = 1} else {foo = 0} }; \
+		  {if(foo == 1) print }' | \
+		  sed -r 's/^#(Server)/\1/' | sed "s/@carch@/$HOST_EC2_ARCH/" \
+		  > mirrorlist.regional
+		
+		wget -O bruenig-rankmirrors.tar.gz "http://github.com/bruenig/rankmirrors/tarball/25c28fd69785db6e83aee789e97134e1e3edfaa7"
+		tar -xzf bruenig-rankmirrors.tar.gz
+		./bruenig-rankmirrors-*/rankmirrors -v mirrorlist.regional \
+		  > mirrorlist.ranked
+		
+		cp -p mirrorlist.ranked /etc/pacman.d/mirrorlist
+		
 		pacman --noconfirm -Syu
 		pacman --noconfirm -Syu
 		
@@ -229,9 +247,6 @@ start_host() {
 		
 		pacman --noconfirm -Sc
 		
-		mount -t ext3 "$EPHEMERAL_STORE" /mnt
-		
-		cd /tmp
 		wget -q http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.zip
 		unzip -oq ec2-ami-tools.zip
 		mv ec2-ami-tools-* /mnt/ec2-ami-tools

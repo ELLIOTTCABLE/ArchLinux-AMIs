@@ -58,6 +58,8 @@ cp -p {"$ELEMENTS","$ROOT"}"/etc/rc.local"
 cp -p {"$ELEMENTS","$ROOT"}"/etc/hosts.deny"
 cp -p {"$ELEMENTS","$ROOT"}"/etc/profile.d/ami.sh"
 
+cp -p "/tmp/mirrorlist.ranked" "$ROOT/etc/pacman.d/mirrorlist"
+
 sed -i -r 's/#(en_US\.UTF-8)/\1/' $ROOT/etc/locale.gen
 sed -i -r "s/#(UseDNS|PasswordAuthentication) yes/\1 no/" \
   $ROOT/etc/ssh/sshd_config
