@@ -1,1 +1,0 @@
-{"fstab":["\/dev\/sdf \/home ext3 noauto,dev,exec,iversion,mand,relatime,suid,rw,acl,user_xattr,data=writeback 0 0","\/dev\/sdg \/srv ext3 noauto,dev,exec,iversion,mand,relatime,suid,rw,acl,user_xattr,data=writeback 0 0"],"hostname":"Void","domain":"yreality.net"}
