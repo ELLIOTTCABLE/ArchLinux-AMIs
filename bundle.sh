@@ -81,7 +81,7 @@ bundle() {
   if [[ -z $HOST_IID ]]; then
     echo "== No bundling host exists, instantiating one"
     STARTED_HOST='yes'
-    start_host || exit 1
+    host_start || exit 1
   fi
   
   HOST_IADDRESS=$(ec2-describe-instances --show-empty-fields $HOST_IID \
@@ -151,7 +151,7 @@ bundle() {
   if [[ -n $STARTED_HOST ]]; then
     echo "-- Terminating the bundling host we launched"
     STARTED_HOST=''
-    stop_host || exit 1
+    host_stop || exit 1
   fi
   
   echo "** ${NAME} registered: ${AMI}"
@@ -165,10 +165,10 @@ host() {
   case $2 in
     "setup")    host_setup    "$@"                  ;;
     "teardown") host_teardown "$@"                  ;;
-    "restart")  stop_host     "$@"; start_host "$@" ;;
-    "start")    start_host    "$@"                  ;;
-    "stop")     stop_host     "$@"                  ;;
-    "get")      get_host      "$@"                  ;;
+    "restart")  host_stop     "$@"; host_start "$@" ;;
+    "start")    host_start    "$@"                  ;;
+    "stop")     host_stop     "$@"                  ;;
+    "get")      host_get      "$@"                  ;;
     *)          usage         "$@"                  ;;
   esac
 }
@@ -213,7 +213,7 @@ host_teardown() {
   fi
 }
 
-start_host() {
+host_start() {
   host_setup "$@"
   
   echo "== Launching bundling host"
@@ -292,9 +292,9 @@ start_host() {
   echo "** ${HOST_IID}[${HOST_AMI}@${HOST_ITYPE}] launched: ${HOST_IADDRESS}"
 }
 
-stop_host() {
+host_stop() {
   echo "== Terminating the $HOST_ARCH bundling host"
-  IID=$(get_host)
+  IID=$(host_get)
   if [[ -n $IID ]]; then
     ec2-terminate-instances --show-empty-fields $IID
     echo "-- Waiting for the host to shut down"
@@ -310,7 +310,7 @@ stop_host() {
   true
 }
 
-get_host() {
+host_get() {
   ec2-describe-instances --show-empty-fields \
     | awk '$1 == "INSTANCE" && $6 == "running" && $7 == "'$HOST_GROUP'" && \
       $10 == "'$HOST_ITYPE'" { print $2; exit }' || exit 1
