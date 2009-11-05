@@ -24,8 +24,8 @@ usage() {
 		    `basename $0` host <operation> [architecture]
 		    <operation> may be one of (setup|start|stop|restart|teardown|get)
 		  
-		  [architecture] may be one of (i686|x86_64|both). If omitted, defaults to
-		    operating on both.
+		  [architecture] may be one of (i686|x86_64|all). If omitted, defaults to
+		    operating on all.
 		  
 		Notes:
 		  If no bundling host is running, than one will be launched before any
@@ -40,7 +40,7 @@ usage() {
 		  `basename $0` host start x86_64
 		  `basename $0` bundle Nucleus i686
 		  `basename $0` bundle Atom
-		  `basename $0` host stop both
+		  `basename $0` host stop all
 	USAGE
   
   exit 1
@@ -343,7 +343,7 @@ case $3 in
     AKI="aki-9c1efef5"
     ARI="ari-901efef9"
   ;;
-  ""|"both")
+  ""|"all")
     echo "==  i686  =="
     $0 $1 $2 'i686' || exit $?
     echo "== x86_64 =="
