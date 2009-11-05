@@ -10,10 +10,45 @@ KEY=$GROUP
 
 BUCKET="arch-linux"
 
-bundle() {
-  STARTED_HOST=''
+usage() {
   
-  HOST_IID=$($0 host get $HOST_ARCH)
+	cat <<-USAGE
+		Usage: `basename $0` <command> [architecture]
+		  <command> may be one of (bundle|host)
+		  
+		  "bundle" expects the following form:
+		    `basename $0` bundle <type> [architecture]
+		    <type> is any of the folder names in this distribution.
+		  
+		  "host" expects the following form:
+		    `basename $0` host <operation> [architecture]
+		    <operation> may be one of (start|stop|restart|get)
+		  
+		  [architecture] may be one of (i386|x86_64|both). If omitted, defaults to
+		    operating on both.
+		  
+		Notes:
+		  If no bundling host is running, than one will be launched before any
+		  bundling operation is commenced, and then terminated after the bundling
+		  operation. If you plan to bundle more than one type, it’s worth your
+		  while to manually start and stop the hosts with the relevant
+		  commands, as setup and teardown take quite a while and shouldn’t be
+		  repeated where unnecessary.
+		  
+		Examples:
+		  `basename $0` host start
+		  `basename $0` host start x86_64
+		  `basename $0` bundle Nucleus i386
+		  `basename $0` bundle Atom
+		  `basename $0` host stop both
+	USAGE
+  
+  exit 1
+}
+
+bundle() {
+  TYPE="$2"
+  if [[ ! -d "$TYPE" ]]; then usage "$@"; fi
   
   echo "== Preparing EC2 environment"
   GROUPID=$(ec2-describe-group --show-empty-fields | awk '$1 == "GROUP" \
@@ -37,6 +72,8 @@ bundle() {
     echo "-- Added keypair: $KEY"
   fi
   
+  STARTED_HOST=''
+  HOST_IID=$($0 host get $HOST_ARCH)
   if [[ -z $HOST_IID ]]; then
     echo "-- No bundling host exists, instantiating one"
     STARTED_HOST='yes'
@@ -48,16 +85,16 @@ bundle() {
   
   echo "== Uploading elements to bundling host"
   scp -qrp -o "StrictHostKeyChecking no" -i "id_rsa-$HOST_KEY" \
-    "./$2" \
+    "./$TYPE" \
     root@$HOST_IADDRESS:/tmp/
   
   echo "== Connecting to bundling host"
   NAME=$(
-		cat "-" "./$2/bundle.sh" <<-SETUP | ssh -o "StrictHostKeyChecking no" -i "id_rsa-$HOST_KEY" root@$HOST_IADDRESS | tail -n1
+		cat "-" "./$TYPE/bundle.sh" <<-SETUP | ssh -o "StrictHostKeyChecking no" -i "id_rsa-$HOST_KEY" root@$HOST_IADDRESS | tail -n1
 			echo "-- Preparing bundling host"
 			source /root/.profile
 			
-			ELEMENTS="/tmp/$2"
+			ELEMENTS="/tmp/$TYPE"
 			
 			AVAILABILITY_ZONE="$AVAILABILITY_ZONE"
 			HOST_GROUP="$HOST_GROUP"
@@ -74,7 +111,7 @@ bundle() {
 			ITYPE="$ITYPE"
 			AKI="$AKI"
 			ARI="$ARI"
-			echo "-- Executing \\\`$2/bundle.sh\\\` on the bundling host"
+			echo "-- Executing \\\`$TYPE/bundle.sh\\\` on the bundling host"
 		SETUP
   )
   
@@ -240,43 +277,6 @@ get_host() {
   ec2-describe-instances --show-empty-fields \
     | awk '$1 == "INSTANCE" && $6 == "running" && $7 == "'$HOST_GROUP'" && \
       $10 == "'$HOST_ITYPE'" { print $2; exit }' || exit 1
-}
-
-usage() {
-  
-	cat <<-USAGE
-		Usage: `basename $0` <command> [architecture]
-		  <command> may be one of (bundle|host)
-		  
-		  "bundle" expects the following form:
-		    `basename $0` bundle <type> [architecture]
-		    <type> is any of the folder names in this distribution.
-		  
-		  "host" expects the following form:
-		    `basename $0` host <operation> [architecture]
-		    <operation> may be one of (start|stop|restart|get)
-		  
-		  [architecture] may be one of (i386|x86_64|both). If omitted, defaults to
-		    operating on both.
-		  
-		Notes:
-		  If no bundling host is running, than one will be launched before any
-		  bundling operation is commenced, and then terminated after the bundling
-		  operation. If you plan to bundle more than one type, it’s worth your
-		  while to manually start and stop the hosts with the relevant
-		  commands, as setup and teardown take quite a while and shouldn’t be
-		  repeated where unnecessary.
-		  
-		Examples:
-		  `basename $0` host start
-		  `basename $0` host start x86_64
-		  `basename $0` bundle Nucleus x86_64
-		  `basename $0` bundle Atom
-		  `basename $0` host stop x86_64
-		  `basename $0` host stop i386
-	USAGE
-  
-  exit 1
 }
 
 case $3 in
