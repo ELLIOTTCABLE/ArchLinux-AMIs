@@ -294,7 +294,7 @@ host_start() {
 
 host_stop() {
   echo "== Terminating the $HOST_ARCH bundling host"
-  IID=$(host_get)
+  IID=$(host_get "$@")
   if [[ -n $IID ]]; then
     ec2-terminate-instances --show-empty-fields $IID
     echo "-- Waiting for the host to shut down"
