@@ -224,10 +224,10 @@ start_host() {
 		
 		wget -O mirrorlist "http://repos.archlinux.org/wsvn/packages/pacman-mirrorlist/repos/core-$HOST_EC2_ARCH/mirrorlist?op=dl&rev=0"
 		# TODO: Use the API endpoint to leave in the European mirrors if appropriate
-		cat mirrorlist | awk '$1 == "#" { \
-		  if($0 ~ "United States") {foo = 1} else {foo = 0} }; \
+		cat mirrorlist | awk '\$1 == "#" { \
+		  if(\$0 ~ "United States") {foo = 1} else {foo = 0} }; \
 		  {if(foo == 1) print }' | \
-		  sed -r 's/^#(Server)/\1/' | sed "s/@carch@/$HOST_EC2_ARCH/" \
+		  sed -r 's/^#(Server)/\1/' | sed 's/@carch@/$HOST_EC2_ARCH/' \
 		  > mirrorlist.regional
 		
 		wget -O bruenig-rankmirrors.tar.gz "http://github.com/bruenig/rankmirrors/tarball/25c28fd69785db6e83aee789e97134e1e3edfaa7"
