@@ -77,7 +77,7 @@ bundle() {
   fi
   
   STARTED_HOST=''
-  HOST_IID=$($0 host get $HOST_ARCH)
+  HOST_IID=$(host_get "$@")
   if [[ -z $HOST_IID ]]; then
     echo "== No bundling host exists, instantiating one"
     STARTED_HOST='yes'
