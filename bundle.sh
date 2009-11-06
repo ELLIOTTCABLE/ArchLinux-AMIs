@@ -5,8 +5,8 @@ AVAILABILITY_ZONE="us-east-1a"
 HOST_GROUP="__bundling-host__"
 HOST_KEY=$HOST_GROUP
 
-GROUP="__ami-testing__"
-KEY=$GROUP
+TEST_GROUP="__ami-testing__"
+TEST_KEY=$TEST_GROUP
 
 BUCKET="arch-linux"
 
@@ -55,25 +55,25 @@ bundle() {
   if [[ ! -d "$TYPE" ]]; then usage "$@"; fi
   
   echo "== Preparing EC2 environment"
-  GROUPID=$(ec2-describe-group --show-empty-fields | awk '$1 == "GROUP" \
-    && $3 == "'$GROUP'" { print $3 }')
-  if [[ -z $GROUPID ]]; then
-    ec2-add-group --show-empty-fields $GROUP \
+  TEST_GROUPID=$(ec2-describe-group --show-empty-fields | awk '$1 == "GROUP" \
+    && $3 == "'$TEST_GROUP'" { print $3 }')
+  if [[ -z $TEST_GROUPID ]]; then
+    ec2-add-group --show-empty-fields $TEST_GROUP \
       -d "Instances dedicated to bundling AMIs" || exit 1
-    ec2-authorize --show-empty-fields $GROUP \
+    ec2-authorize --show-empty-fields $TEST_GROUP \
       --protocol tcp --port-range 22 || exit 1
-    echo "-- Added security group: $GROUP"
+    echo "-- Added security group: $TEST_GROUP"
   fi
   
-  KEYID=$(ec2-describe-keypairs --show-empty-fields \
-    | awk '$1 == "KEYPAIR" && $2 == "'$KEY'" { print $2 }')
-  if [[ -z $KEYID || ! -f "id_rsa-$KEY" ]]; then
-    ec2-delete-keypair --show-empty-fields $KEY
-    rm -f "id_rsa-$KEY"
-    ec2-add-keypair --show-empty-fields $KEY \
-      > "id_rsa-$KEY" || exit 1
-    chmod 400 "id_rsa-$KEY" || exit 1
-    echo "-- Added keypair: $KEY"
+  TEST_KEYID=$(ec2-describe-keypairs --show-empty-fields \
+    | awk '$1 == "KEYPAIR" && $2 == "'$TEST_KEY'" { print $2 }')
+  if [[ -z $TEST_KEYID || ! -f "id_rsa-$TEST_KEY" ]]; then
+    ec2-delete-keypair --show-empty-fields $TEST_KEY
+    rm -f "id_rsa-$TEST_KEY"
+    ec2-add-keypair --show-empty-fields $TEST_KEY \
+      > "id_rsa-$TEST_KEY" || exit 1
+    chmod 400 "id_rsa-$TEST_KEY" || exit 1
+    echo "-- Added keypair: $TEST_KEY"
   fi
   
   STARTED_HOST=''
@@ -104,8 +104,8 @@ bundle() {
 			AVAILABILITY_ZONE="$AVAILABILITY_ZONE"
 			HOST_GROUP="$HOST_GROUP"
 			HOST_KEY="$HOST_KEY"
-			KEY="$KEY"
-			GROUP="$GROUP"
+			TEST_KEY="$TEST_KEY"
+			TEST_GROUP="$TEST_GROUP"
 			BUCKET="$BUCKET"
 			HOST_ARCH="$HOST_ARCH"
 			HOST_EC2_ARCH="$HOST_EC2_ARCH"
@@ -125,7 +125,7 @@ bundle() {
     | awk '/IMAGE/ { print $2 }')
   
   echo "== Instantiating $AMI to test"
-  IID=$(ec2-run-instances --group $GROUP --key $KEY \
+  IID=$(ec2-run-instances --group $TEST_GROUP --key $TEST_KEY \
     --availability-zone $AVAILABILITY_ZONE \
     --instance-type $ITYPE $AMI | awk '/INSTANCE/ { print $2 }')
   IADDRESS="(nil)"
@@ -138,7 +138,7 @@ bundle() {
   false
   until [[ $? == 0 ]]; do
     sleep 5
-		ssh -o "StrictHostKeyChecking no" -i "id_rsa-$KEY" root@$IADDRESS <<-'ITESTING'
+		ssh -o "StrictHostKeyChecking no" -i "id_rsa-$TEST_KEY" root@$IADDRESS <<-'ITESTING'
 			echo "?? uname: `uname --all`"
 			echo "-- Installing packages with pacman"
 			pacman --noconfirm -S sudo wget which vi tar nano lzo2 procinfo \
@@ -210,9 +210,9 @@ host_teardown() {
     ec2-delete-keypair --show-empty-fields $HOST_KEY && \
       rm -f "id_rsa-$HOST_KEY"
     
-    ec2-delete-group --show-empty-fields $GROUP
-    ec2-delete-keypair --show-empty-fields $KEY && \
-      rm -f "id_rsa-$KEY"
+    ec2-delete-group --show-empty-fields $TEST_GROUP
+    ec2-delete-keypair --show-empty-fields $TEST_KEY && \
+      rm -f "id_rsa-$TEST_KEY"
   fi
 }
 
