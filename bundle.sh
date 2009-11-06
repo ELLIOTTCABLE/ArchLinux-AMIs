@@ -113,7 +113,7 @@ bundle() {
 			HOST_ITYPE="$HOST_ITYPE"
 			ARCH="$ARCH"
 			EC2_ARCH="$EC2_ARCH"
-			ITYPE="$ITYPE"
+			TEST_ITYPE="$TEST_ITYPE"
 			AKI="$AKI"
 			ARI="$ARI"
 			echo "-- Executing \\\`$TYPE/bundle.sh\\\` on the bundling host"
@@ -127,7 +127,7 @@ bundle() {
   echo "== Instantiating $AMI to test"
   IID=$(ec2-run-instances --group $TEST_GROUP --key $TEST_KEY \
     --availability-zone $AVAILABILITY_ZONE \
-    --instance-type $ITYPE $AMI | awk '/INSTANCE/ { print $2 }')
+    --instance-type $TEST_ITYPE $AMI | awk '/INSTANCE/ { print $2 }')
   IADDRESS="(nil)"
   while [[ $IADDRESS == "(nil)" ]]; do
     IADDRESS=$(ec2-describe-instances --show-empty-fields $IID \
@@ -327,7 +327,7 @@ case $3 in
     HOST_ITYPE="m1.small"
     ARCH="i686"
     EC2_ARCH="i386"
-    ITYPE="m1.small"
+    TEST_ITYPE="m1.small"
     AKI="aki-841efeed"
     ARI="ari-9a1efef3"
   ;;
@@ -338,7 +338,7 @@ case $3 in
     HOST_ITYPE="m1.large"
     ARCH="x86_64"
     EC2_ARCH="x86_64"
-    ITYPE="m1.large"
+    TEST_ITYPE="m1.large"
     AKI="aki-9c1efef5"
     ARI="ari-901efef9"
   ;;
