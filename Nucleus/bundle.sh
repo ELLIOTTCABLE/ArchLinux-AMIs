@@ -62,10 +62,10 @@ sed -i -r "s/#(UseDNS|PasswordAuthentication) yes/\1 no/" \
   $ROOT/etc/ssh/sshd_config
 
 echo "-- Installing EC2 kernel modules"
-cd $ROOT/lib/modules
-curl -s http://static.iphash.net/ec2/$EC2_ARCH/2.6.21.7-2.fc8xen.cpio.lzma \
-  | lzma -d | cpio -idm
-cd -
+tar --extract --gzip \
+  --atime-preserve --preserve-permissions --preserve-order --same-owner \
+  --file "/mnt/modules.tar.gz" --directory "$ROOT/lib/modules"
+
 
 echo "-- Tearing down environment"
 umount "$ROOT/"{"proc","sys","dev","var/cache/pacman"}
