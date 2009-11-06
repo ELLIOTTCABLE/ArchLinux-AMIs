@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-AVAILABILITY_ZONE="us-east-1a"
+HOST_AVAILABILITY_ZONE="us-east-1a"
 
 HOST_GROUP="__bundling-host__"
 HOST_KEY=$HOST_GROUP
@@ -95,7 +95,7 @@ _bundle() {
 			TYPE="$TYPE"
 			ELEMENTS="/tmp/$TYPE"
 			
-			AVAILABILITY_ZONE="$AVAILABILITY_ZONE"
+			HOST_AVAILABILITY_ZONE="$HOST_AVAILABILITY_ZONE"
 			HOST_GROUP="$HOST_GROUP"
 			HOST_KEY="$HOST_KEY"
 			TEST_KEY="$TEST_KEY"
@@ -184,29 +184,35 @@ test_teardown() {
 
 test_run() {
   AMI=$2
-  echo "== Instantiating $AMI to test"
-  IID=$(ec2-run-instances --group $TEST_GROUP --key $TEST_KEY \
-    --availability-zone $AVAILABILITY_ZONE \
-    --instance-type $TEST_ITYPE $AMI | awk '/INSTANCE/ { print $2 }')
-  IADDRESS="(nil)"
-  while [[ $IADDRESS == "(nil)" ]]; do
-    IADDRESS=$(ec2-describe-instances --show-empty-fields $IID \
-      | awk '$1 == "INSTANCE" { print $4 }')
-  done
   
-  echo "== Connecting to testing instance"
-  false
-  until [[ $? == 0 ]]; do
-    sleep 5
-		ssh -o "StrictHostKeyChecking no" -i "id_rsa-$TEST_KEY" root@$IADDRESS <<-'ITESTING'
-			echo "?? uname: `uname --all`"
-			echo "-- Installing packages with pacman"
-			pacman --noconfirm -S sudo wget which vi tar nano lzo2 procinfo \
-			  libgcrypt less groff file diffutils dialog dbus-core dash cpio binutils
-			
-			INSTALL_STATUS=$?
-			shutdown -h now && exit $INSTALL_STATUS
-		ITESTING
+  AVAILABILITY_ZONES=$(ec2-describe-availability-zones | awk '$1 == "AVAILABILITYZONE" && $3 == "available" { print $2 }')
+  for TEST_AVAILABILITY_ZONE in $AVAILABILITY_ZONES; do
+    
+    echo "== Instantiating ${AMI} in $TEST_AVAILABILITY_ZONE"
+    IID=$(ec2-run-instances --group $TEST_GROUP --key $TEST_KEY \
+      --availability-zone $TEST_AVAILABILITY_ZONE \
+      --instance-type $TEST_ITYPE $AMI | awk '/INSTANCE/ { print $2 }')
+    IADDRESS="(nil)"
+    while [[ $IADDRESS == "(nil)" ]]; do
+      IADDRESS=$(ec2-describe-instances --show-empty-fields $IID \
+        | awk '$1 == "INSTANCE" { print $4 }')
+    done
+    
+    echo "== Connecting to testing instance"
+    false
+    until [[ $? == 0 ]]; do
+      sleep 5
+			ssh -o "StrictHostKeyChecking no" -i "id_rsa-$TEST_KEY" root@$IADDRESS <<-'ITESTING'
+				echo "?? uname: `uname --all`"
+				echo "-- Installing packages with pacman"
+				pacman --noconfirm -S sudo wget which vi tar nano lzo2 procinfo \
+				  libgcrypt less groff file diffutils dialog dbus-core dash cpio binutils
+				
+				INSTALL_STATUS=$?
+				shutdown -h now && exit $INSTALL_STATUS
+			ITESTING
+    done
+    
   done
 }
 
@@ -267,7 +273,7 @@ host_start() {
   echo "== Launching bundling host"
   HOST_IID=$(ec2-run-instances --show-empty-fields $HOST_AMI \
     --group $HOST_GROUP --key $HOST_KEY --instance-type $HOST_ITYPE \
-    --availability-zone $AVAILABILITY_ZONE \
+    --availability-zone $HOST_AVAILABILITY_ZONE \
     | awk '$1 == "INSTANCE" { print $2 }') || exit 1
   
   HOST_IADDRESS="(nil)"
