@@ -10,19 +10,25 @@ TEST_KEY=$TEST_GROUP
 
 BUCKET="arch-linux"
 
-usage() {
+_usage() {
   
 	cat <<-USAGE
 		Usage: `basename $0` <command> <argument> [architecture]
-		  <command> may be one of (bundle|host)
+		  <command> may be one of (bundle|test|host).
 		  
 		  "bundle" expects the following form:
 		    `basename $0` bundle <type> [architecture]
 		    <type> is any of the folder names in this distribution.
 		  
+		  "test" expects one of the following forms:
+		    `basename $0` test <AMI-ID> [architecture]
+		    `basename $0` test <operation> [architecture]
+		    <operation> may be one of (setup|teardown). If anything else is
+		    provided, it will be treated as an AMI ID to be tested.
+		  
 		  "host" expects the following form:
 		    `basename $0` host <operation> [architecture]
-		    <operation> may be one of (setup|start|stop|restart|teardown|get)
+		    <operation> may be one of (setup|start|stop|restart|teardown|get).
 		  
 		  [architecture] may be one of (i686|x86_64|all). If omitted, defaults to
 		    operating on all.
@@ -33,13 +39,15 @@ usage() {
 		  operation. If you plan to bundle more than one type, it’s worth your
 		  while to manually start and stop the hosts with the relevant
 		  commands, as setup and teardown take quite a while and shouldn’t be
-		  repeated where unnecessary.
+		  repeated where unnecessary. The same applies to the kernel host, and
+		  testing environment setup/teardown.
 		  
 		Examples:
 		  `basename $0` host start
-		  `basename $0` host start x86_64
+		  `basename $0` host setup x86_64
 		  `basename $0` bundle Nucleus i686
 		  `basename $0` bundle Atom
+		  `basename $0` test ami-18ab99
 		  `basename $0` host stop all
 	USAGE
   
@@ -50,31 +58,9 @@ usage() {
 # = AMI bundling =
 # ================
 
-bundle() {
+_bundle() {
   TYPE="$2"
   if [[ ! -d "$TYPE" ]]; then usage "$@"; fi
-  
-  echo "== Preparing EC2 environment"
-  TEST_GROUPID=$(ec2-describe-group --show-empty-fields | awk '$1 == "GROUP" \
-    && $3 == "'$TEST_GROUP'" { print $3 }')
-  if [[ -z $TEST_GROUPID ]]; then
-    ec2-add-group --show-empty-fields $TEST_GROUP \
-      -d "Instances dedicated to bundling AMIs" || exit 1
-    ec2-authorize --show-empty-fields $TEST_GROUP \
-      --protocol tcp --port-range 22 || exit 1
-    echo "-- Added security group: $TEST_GROUP"
-  fi
-  
-  TEST_KEYID=$(ec2-describe-keypairs --show-empty-fields \
-    | awk '$1 == "KEYPAIR" && $2 == "'$TEST_KEY'" { print $2 }')
-  if [[ -z $TEST_KEYID || ! -f "id_rsa-$TEST_KEY" ]]; then
-    ec2-delete-keypair --show-empty-fields $TEST_KEY
-    rm -f "id_rsa-$TEST_KEY"
-    ec2-add-keypair --show-empty-fields $TEST_KEY \
-      > "id_rsa-$TEST_KEY" || exit 1
-    chmod 400 "id_rsa-$TEST_KEY" || exit 1
-    echo "-- Added keypair: $TEST_KEY"
-  fi
   
   STARTED_HOST=''
   HOST_IID=$(host_get "$@")
@@ -124,6 +110,72 @@ bundle() {
   AMI=$(ec2-register --show-empty-fields "$BUCKET/$NAME.manifest.xml" \
     | awk '/IMAGE/ { print $2 }')
   
+  
+  
+  if [[ -n $STARTED_HOST ]]; then
+    echo "-- Terminating the bundling host we launched"
+    STARTED_HOST=''
+    host_stop     "$@" || exit 1
+    host_teardown "$@" || exit 1
+  fi
+  
+  echo "** ${NAME} registered: ${AMI}"
+}
+
+# ===============
+# = AMI testing =
+# ===============
+
+_test() {
+  case $2 in
+    "setup")    test_setup    "$@" || exit 1  ;;
+    "teardown") test_teardown "$@" || exit 1  ;;
+    *)
+      test_setup    "$@" || exit 1
+      test_run      "$@" || exit 1
+      test_teardown "$@" || exit 1
+    ;;
+  esac
+}
+
+test_setup() {
+  echo "== Preparing EC2 environment for testing instance"
+  TEST_GROUPID=$(ec2-describe-group --show-empty-fields | awk '$1 == "GROUP" \
+    && $3 == "'$TEST_GROUP'" { print $3 }')
+  if [[ -z $TEST_GROUPID ]]; then
+    ec2-add-group --show-empty-fields $TEST_GROUP \
+      -d "AMI testing instances" || exit 1
+    ec2-authorize --show-empty-fields $TEST_GROUP \
+      --protocol tcp --port-range 22 || exit 1
+    echo "-- Added security group: $TEST_GROUP"
+  fi
+  
+  TEST_KEYID=$(ec2-describe-keypairs --show-empty-fields \
+    | awk '$1 == "KEYPAIR" && $2 == "'$TEST_KEY'" { print $2 }')
+  if [[ -z $TEST_KEYID || ! -f "id_rsa-$TEST_KEY" ]]; then
+    ec2-delete-keypair --show-empty-fields $TEST_KEY
+    rm -f "id_rsa-$TEST_KEY"
+    ec2-add-keypair --show-empty-fields $TEST_KEY \
+      > "id_rsa-$TEST_KEY" || exit 1
+    chmod 400 "id_rsa-$TEST_KEY" || exit 1
+    echo "-- Added keypair: $TEST_KEY"
+  fi
+}
+
+test_teardown() {
+  TEST_IIDS=$(ec2-describe-instances --show-empty-fields \
+    | awk '$1 == "INSTANCE" && $7 == "'$TEST_GROUP'" && \
+      $6 != "terminated" { print $6 }')
+  if [[ -z $TEST_IIDS ]]; then
+    echo "-- There are no active testing instances, wiping groups and keys"    
+    ec2-delete-group --show-empty-fields $TEST_GROUP
+    ec2-delete-keypair --show-empty-fields $TEST_KEY && \
+      rm -f "id_rsa-$TEST_KEY"
+  fi
+}
+
+test_run() {
+  AMI=$2
   echo "== Instantiating $AMI to test"
   IID=$(ec2-run-instances --group $TEST_GROUP --key $TEST_KEY \
     --availability-zone $AVAILABILITY_ZONE \
@@ -148,22 +200,13 @@ bundle() {
 			shutdown -h now && exit $INSTALL_STATUS
 		ITESTING
   done
-  
-  if [[ -n $STARTED_HOST ]]; then
-    echo "-- Terminating the bundling host we launched"
-    STARTED_HOST=''
-    host_stop     "$@" || exit 1
-    host_teardown "$@" || exit 1
-  fi
-  
-  echo "** ${NAME} registered: ${AMI}"
 }
 
 # ============================
 # = Bundling host management =
 # ============================
 
-host() {
+_host() {
   case $2 in
     "setup")    host_setup    "$@" || exit 1                                ;;
     "teardown") host_teardown "$@" || exit 1                                ;;
@@ -209,10 +252,6 @@ host_teardown() {
     ec2-delete-group --show-empty-fields $HOST_GROUP
     ec2-delete-keypair --show-empty-fields $HOST_KEY && \
       rm -f "id_rsa-$HOST_KEY"
-    
-    ec2-delete-group --show-empty-fields $TEST_GROUP
-    ec2-delete-keypair --show-empty-fields $TEST_KEY && \
-      rm -f "id_rsa-$TEST_KEY"
   fi
 }
 
@@ -353,7 +392,8 @@ case $3 in
 esac
 
 case $1 in
-  "bundle") bundle "$@"   ;;
-  "host")   host   "$@"   ;;
-  *)        usage  "$@"   ;;
+  "bundle") _bundle "$@"   ;;
+  "test")   _test   "$@"   ;;
+  "host")   _host   "$@"   ;;
+  *)        _usage  "$@"   ;;
 esac
