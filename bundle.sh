@@ -216,10 +216,13 @@ test_run() {
 				echo "?? uname: `uname --all`"
 				echo "-- Installing packages with pacman"
 				pacman --noconfirm -S sudo wget which vi tar nano lzo2 procinfo \
-				  libgcrypt less groff file diffutils dialog dbus-core dash cpio binutils
+				  libgcrypt less groff file diffutils dialog dbus-core dash cpio binutils \
+				  || (shutdown -h now && exit 1)
 				
-				INSTALL_STATUS=$?
-				shutdown -h now && exit $INSTALL_STATUS
+				echo "-- Onlining kernel modules"
+				(modprobe loop && modprobe hfs) || (shutdown -h now && exit 1)
+				
+				shutdown -h now && exit 0
 			ITESTING
     done
     
