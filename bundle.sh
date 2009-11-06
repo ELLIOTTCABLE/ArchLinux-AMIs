@@ -110,8 +110,6 @@ _bundle() {
   AMI=$(ec2-register --show-empty-fields "$BUCKET/$NAME.manifest.xml" \
     | awk '/IMAGE/ { print $2 }')
   
-  
-  
   if [[ -n $STARTED_HOST ]]; then
     echo "-- Terminating the bundling host we launched"
     STARTED_HOST=''
@@ -358,6 +356,13 @@ host_get() {
 # = Argument parsing =
 # ====================
 
+case $1 in
+  "bundle") _bundle "$@"   ;;
+  "test")   _test   "$@"   ;;
+  "host")   _host   "$@"   ;;
+  *)        _usage  "$@"   ;;
+esac
+
 case $3 in
   "32"|"x86"|"i386"|"i686")
     HOST_ARCH="i686"
@@ -389,11 +394,4 @@ case $3 in
     exit 0
   ;;
   *) usage "$@" ;;
-esac
-
-case $1 in
-  "bundle") _bundle "$@"   ;;
-  "test")   _test   "$@"   ;;
-  "host")   _host   "$@"   ;;
-  *)        _usage  "$@"   ;;
 esac
