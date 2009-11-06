@@ -13,6 +13,19 @@ TEST_KEY=$TEST_GROUP
 
 BUCKET="arch-linux"
 
+if [[ -z $EC2_HOME ]]; then EC2_HOME="$HOME/.ec2"; fi
+if [[ -z $EC2_PRIVATE_KEY ]]; then
+  EC2_PRIVATE_KEY=$($(which ls) "$EC2_HOME/pk-*.pem"); fi
+if [[ -z $EC2_CERT ]]; then
+  EC2_CERT=$($(which ls) "$EC2_HOME/cert-*.pem"); fi
+
+if [[ -z $AWS_ACCOUNT_NUMBER ]]; then
+  AWS_ACCOUNT_NUMBER="$(cat $EC2_HOME/account_number)"; fi
+if [[ -z $S3_ACCESS_KEY ]]; then
+  S3_ACCESS_KEY="$(cat $EC2_HOME/access_key)"; fi
+if [[ -z $S3_SECRET_KEY ]]; then
+  S3_SECRET_KEY="$(cat $EC2_HOME/SECRET_KEY)"; fi
+
 _usage() {
   
 	cat <<-USAGE
@@ -45,7 +58,22 @@ _usage() {
 		  repeated where unnecessary. The same applies to the kernel host, and
 		  testing environment setup/teardown.
 		  
-		Examples:
+		ENV variables:
+		  This tool expects a few environment variables to be configured:
+		    
+		    EC2_HOME: Directory containing your EC2 tools and certificates
+		    EC2_PRIVATE_KEY: Absolute path to your EC2 X.509 private key file
+		    EC2_CERT: Absolute path to your EC2 X.509 certificate
+		    
+		    AWS_ACCOUNT_NUMBER: Your numerical AWS account number (i.e.
+		      316177411691, no dashes—will be read from $EC2_HOME/account_number
+		      if undefined)
+		    S3_ACCESS_KEY: Your S3 access key (will be read from
+		      $EC2_HOME/access_key if undefined)
+		    S3_SECRET_KEY: Your S3 secret access key (will be read from
+		      $EC2_HOME/secret_key if undefined)
+		  
+		Usage examples:
 		  `basename $0` host start
 		  `basename $0` host setup x86_64
 		  `basename $0` bundle Nucleus i686
@@ -58,6 +86,12 @@ _usage() {
 }
 
 if [[ -z $1 || -z $2 ]]; then
+  _usage "$@"
+fi
+
+if [[ -z $EC2_PRIVATE_KEY || -z $EC2_CERT || -z $AWS_ACCOUNT_NUMBER
+   || -z $S3_ACCESS_KEY || -z $S3_SECRET_KEY ]]; then
+  echo "!! FATAL: Missing environment variables or certificate files"
   _usage "$@"
 fi
 
@@ -97,6 +131,13 @@ _bundle() {
 			TAG="$TAG"
 			TYPE="$TYPE"
 			ELEMENTS="/tmp/$TYPE"
+			
+			EC2_HOME="$EC2_HOME"
+			EC2_PRIVATE_KEY="$EC2_PRIVATE_KEY"
+			EC2_CERT="$EC2_CERT"
+			AWS_ACCOUNT_NUMBER="$AWS_ACCOUNT_NUMBER"
+			S3_ACCESS_KEY="$S3_ACCESS_KEY"
+			S3_SECRET_KEY="$S3_SECRET_KEY"
 			
 			HOST_AVAILABILITY_ZONE="$HOST_AVAILABILITY_ZONE"
 			BUNDLING_HOST_GROUP="$BUNDLING_HOST_GROUP"
@@ -323,12 +364,9 @@ host_start() {
   false
   until [[ $? == 0 ]]; do
     sleep 5
-    # TODO: Get rid of these file requirements; take envvars if possible
     scp -o "StrictHostKeyChecking no" -i "id_rsa-$BUNDLING_HOST_KEY" \
-      ~/.ec2/*.pem \
-      ~/.ec2/account_number \
-      ~/.ec2/access_key \
-      ~/.ec2/secret_key \
+      $EC2_PRIVATE_KEY \
+      $EC2_CERT \
       root@$BUNDLING_HOST_IADDRESS:/tmp/
   done
   
@@ -422,7 +460,6 @@ host_start() {
 	ITESTING
   
   echo "== Uploading kernel host key to bundling host"
-  # TODO: Get rid of these file requirements; take envvars if possible
   scp -o "StrictHostKeyChecking no" -i "id_rsa-$BUNDLING_HOST_KEY" \
     "id_rsa-$KERNEL_HOST_KEY" \
     root@$BUNDLING_HOST_IADDRESS:/tmp/

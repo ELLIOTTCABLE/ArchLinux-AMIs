@@ -73,15 +73,15 @@ umount "$ROOT/"{"proc","sys","dev","var/cache/pacman"}
 echo "-- Bundling image"
 $EC2_AMITOOL_HOME/bin/ec2-bundle-vol \
   --cert /tmp/cert-*.pem --privatekey /tmp/pk-*.pem \
-  --user "$(cat /tmp/account_number)" \
+  --user $ACCOUNT_NUMBER \
   --arch $EC2_ARCH --kernel $AKI --ramdisk $ARI \
   --size 10240 --fstab "$ELEMENTS/fstab" --volume $ROOT --no-inherit \
   --destination "/mnt" --prefix "$NAME" --batch
 
 echo "-- Uploading image"
 $EC2_AMITOOL_HOME/bin/ec2-upload-bundle \
-  --access-key "$(cat /tmp/access_key)" \
-  --secret-key "$(cat /tmp/secret_key)" \
+  --access-key $ACCESS_KEY \
+  --secret-key $SECRET_KEY \
   --bucket $BUCKET \
   --manifest "/mnt/${NAME}.manifest.xml" --batch --retry
 
