@@ -113,7 +113,11 @@ _bundle() {
 			ARCH="$ARCH"
 			EC2_ARCH="$EC2_ARCH"
 			TEST_ITYPE="$TEST_ITYPE"
+			KERNEL_ARCH="$KERNEL_ARCH"
 			KERNEL_HOST_AMI="$KERNEL_HOST_AMI"
+			KERNEL_HOST_ARCH="$KERNEL_HOST_ARCH"
+			KERNEL_HOST_EC2_ARCH="$KERNEL_HOST_EC2_ARCH"
+			KERNEL_HOST_ITYPE="$KERNEL_HOST_ITYPE"
 			AKI="$AKI"
 			ARI="$ARI"
 			echo "-- Executing \\\`$TYPE/bundle.sh\\\` on the bundling host"
@@ -261,6 +265,27 @@ host_setup() {
     chmod 400 "id_rsa-$BUNDLING_HOST_KEY" || exit 1
     echo "-- Added keypair: $BUNDLING_HOST_KEY"
   fi
+  
+  KERNEL_HOST_GROUPID=$(ec2-describe-group --show-empty-fields | awk '$1 == "GROUP" \
+    && $3 == "'$KERNEL_HOST_GROUP'" { print $3 }')
+  if [[ -z $KERNEL_HOST_GROUPID ]]; then
+    ec2-add-group --show-empty-fields $KERNEL_HOST_GROUP \
+      -d "Instances hosting kernel and kernel modules for bundling AMIs" || exit 1
+    ec2-authorize --show-empty-fields $KERNEL_HOST_GROUP \
+      --protocol tcp --port-range 22 || exit 1
+    echo "-- Added security group: $KERNEL_HOST_GROUP"
+  fi
+  
+  KERNEL_HOST_KEYID=$(ec2-describe-keypairs --show-empty-fields \
+    | awk '$1 == "KEYPAIR" && $2 == "'$KERNEL_HOST_KEY'" { print $2 }')
+  if [[ -z $KERNEL_HOST_KEYID || ! -f "id_rsa-$KERNEL_HOST_KEY" ]]; then
+    ec2-delete-keypair --show-empty-fields $KERNEL_HOST_KEY
+    rm -f "id_rsa-$KERNEL_HOST_KEY"
+    ec2-add-keypair --show-empty-fields $KERNEL_HOST_KEY \
+      > "id_rsa-$KERNEL_HOST_KEY" || exit 1
+    chmod 400 "id_rsa-$KERNEL_HOST_KEY" || exit 1
+    echo "-- Added keypair: $KERNEL_HOST_KEY"
+  fi
 }
 
 host_teardown() {
@@ -272,6 +297,9 @@ host_teardown() {
     ec2-delete-group --show-empty-fields $BUNDLING_HOST_GROUP
     ec2-delete-keypair --show-empty-fields $BUNDLING_HOST_KEY && \
       rm -f "id_rsa-$BUNDLING_HOST_KEY"
+    ec2-delete-group --show-empty-fields $KERNEL_HOST_GROUP
+    ec2-delete-keypair --show-empty-fields $KERNEL_HOST_KEY && \
+      rm -f "id_rsa-$KERNEL_HOST_KEY"
   fi
 }
 
@@ -302,15 +330,15 @@ host_start() {
   done
   
   case $BUNDLING_HOST_ARCH in
-  "i686")   EPHEMERAL_STORE='/dev/sda2' ;;
-  "x86_64") EPHEMERAL_STORE='/dev/sdb'  ;;
+  "i686")   BUNDLING_HOST_EPHEMERAL_STORE='/dev/sda2' ;;
+  "x86_64") BUNDLING_HOST_EPHEMERAL_STORE='/dev/sdb'  ;;
   esac
   
   echo "== Connecting to bundling host"
 	cat <<-SETUP | ssh -o "StrictHostKeyChecking no" -i "id_rsa-$BUNDLING_HOST_KEY" root@$BUNDLING_HOST_IADDRESS
 		echo "== Preparing host for bundling operations"
 		cd /tmp
-		mount -t ext3 "$EPHEMERAL_STORE" /mnt
+		mount -t ext3 "$BUNDLING_HOST_EPHEMERAL_STORE" /mnt
 		
 		echo "-- Constructing pacman mirrorlist"
 		wget -O mirrorlist "http://repos.archlinux.org/wsvn/packages/pacman-mirrorlist/repos/core-$BUNDLING_HOST_ARCH/mirrorlist?op=dl&rev=0"
@@ -349,6 +377,62 @@ host_start() {
 		PROFILE
 	SETUP
   
+  echo "== Launching kernel host"
+  KERNEL_HOST_IID=$(ec2-run-instances --show-empty-fields $KERNEL_HOST_AMI \
+    --group $KERNEL_HOST_GROUP --key $KERNEL_HOST_KEY --instance-type $KERNEL_HOST_ITYPE \
+    --availability-zone $HOST_AVAILABILITY_ZONE \
+    | awk '$1 == "INSTANCE" { print $2 }') || exit 1
+  
+  KERNEL_HOST_IADDRESS="(nil)"
+  while [[ $KERNEL_HOST_IADDRESS == "(nil)" ]]; do
+    KERNEL_HOST_IADDRESS=$(ec2-describe-instances --show-empty-fields $KERNEL_HOST_IID \
+      | awk '$1 == "INSTANCE" { print $4 }')
+  done
+  
+  echo "== Connecting to kernel host"
+  false
+  until [[ $? == 0 ]]; do
+    sleep 5
+		ssh -o "StrictHostKeyChecking no" -i "id_rsa-$KERNEL_HOST_KEY" ubuntu@$KERNEL_HOST_IADDRESS <<-SETUP
+			sudo apt-get update
+			echo "-- Installing kernel"
+			sudo apt-get install wireless-crda
+		SETUP
+  done
+  
+  case $KERNEL_HOST_ARCH in
+  "i686")   KERNEL_HOST_EPHEMERAL_STORE='/dev/sda2' ;;
+  "x86_64") KERNEL_HOST_EPHEMERAL_STORE='/dev/sdb'  ;;
+  esac
+  
+	ssh -o "StrictHostKeyChecking no" -i "id_rsa-$KERNEL_HOST_KEY" ubuntu@$KERNEL_HOST_IADDRESS <<-ITESTING
+		mount -t ext3 "$KERNEL_HOST_EPHEMERAL_STORE" /mnt
+		cd /tmp
+		
+		sudo wget -q http://ppa.launchpad.net/timg-tpi/ubuntu/pool/main/l/linux-ec2/linux-image-\$(uname -r)_2.6.31-300.2_$KERNEL_ARCH.deb
+		sudo dpkg -i linux-image-\$(uname -r)_2.6.31-300.2_$KERNEL_ARCH.deb
+		echo "-- Packaging kernel modules"
+		sudo tar --create --gzip \
+		  --atime-preserve --preserve-permissions --preserve-order --same-owner \
+		  --file "/mnt/modules.tar.gz" \
+		  --directory "/lib/modules" -- "\$(uname -r)"
+	ITESTING
+  
+  echo "== Uploading kernel host key to bundling host"
+  # TODO: Get rid of these file requirements; take envvars if possible
+  scp -o "StrictHostKeyChecking no" -i "id_rsa-$BUNDLING_HOST_KEY" \
+    "id_rsa-$KERNEL_HOST_KEY" \
+    root@$BUNDLING_HOST_IADDRESS:/tmp/
+  
+  echo "== Downloading kernel modules to bundling host"
+	ssh -o "StrictHostKeyChecking no" -i "id_rsa-$BUNDLING_HOST_KEY" root@$BUNDLING_HOST_IADDRESS <<-SETUP
+		scp -o "StrictHostKeyChecking no" -i "/tmp/id_rsa-$KERNEL_HOST_KEY" \
+		  "ubuntu@$KERNEL_HOST_IADDRESS:/mnt/modules.tar.gz" \
+		  /mnt/
+	SETUP
+  
+  ec2-terminate-instances --show-empty-fields $KERNEL_HOST_IID
+  
   echo "** ${BUNDLING_HOST_IID}[${BUNDLING_HOST_AMI}@${BUNDLING_HOST_ITYPE}] launched: ${BUNDLING_HOST_IADDRESS}"
 }
 
@@ -383,23 +467,31 @@ case $3 in
     ARCH="i686"
     EC2_ARCH="i386"
     TEST_ITYPE="m1.small"
-    BUNDLING_HOST_ARCH="i686"
-    BUNDLING_HOST_EC2_ARCH="i386"
     BUNDLING_HOST_AMI="ami-05799e6c"
+    BUNDLING_HOST_ARCH=$ARCH
+    BUNDLING_HOST_EC2_ARCH=$EC2_ARCH
     BUNDLING_HOST_ITYPE="m1.small"
+    KERNEL_ARCH="i386"
     KERNEL_HOST_AMI="ami-fa658593"
+    KERNEL_HOST_ARCH=$BUNDLING_HOST_ARCH
+    KERNEL_HOST_EC2_ARCH=$BUNDLING_HOST_ARCH
+    KERNEL_HOST_ITYPE=$TEST_ITYPE
     AKI="aki-841efeed"
     ARI="ari-9a1efef3"
   ;;
   "64"|"x64"|"x86_64"|"x86-64"|"amd64")
     ARCH="x86_64"
-    EC2_ARCH="x86_64"
+    EC2_ARCH=$ARCH
     TEST_ITYPE="m1.large"
-    BUNDLING_HOST_ARCH="x86_64"
-    BUNDLING_HOST_EC2_ARCH="x86_64"
     BUNDLING_HOST_AMI="ami-1b799e72"
+    BUNDLING_HOST_ARCH=$ARCH
+    BUNDLING_HOST_EC2_ARCH=$EC2_ARCH
     BUNDLING_HOST_ITYPE="m1.large"
+    KERNEL_ARCH="amd64"
     KERNEL_HOST_AMI="ami-1a658573"
+    KERNEL_HOST_ARCH=$BUNDLING_HOST_ARCH
+    KERNEL_HOST_EC2_ARCH=$BUNDLING_HOST_ARCH
+    KERNEL_HOST_ITYPE=$TEST_ITYPE
     AKI="aki-9c1efef5"
     ARI="ari-901efef9"
   ;;
@@ -410,7 +502,7 @@ case $3 in
     $0 $1 $2 'x86_64' || exit $?
     exit 0
   ;;
-  *) usage "$@" ;;
+  *) _usage "$@" ;;
 esac
 
 case $1 in
