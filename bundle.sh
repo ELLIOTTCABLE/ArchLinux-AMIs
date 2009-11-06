@@ -106,13 +106,14 @@ _bundle() {
 			TEST_KEY="$TEST_KEY"
 			TEST_GROUP="$TEST_GROUP"
 			BUCKET="$BUCKET"
-			HOST_ARCH="$HOST_ARCH"
-			HOST_EC2_ARCH="$HOST_EC2_ARCH"
+			BUNDLING_HOST_ARCH="$BUNDLING_HOST_ARCH"
+			BUNDLING_HOST_EC2_ARCH="$BUNDLING_HOST_EC2_ARCH"
 			BUNDLING_HOST_AMI="$BUNDLING_HOST_AMI"
-			HOST_ITYPE="$HOST_ITYPE"
+			BUNDLING_HOST_ITYPE="$BUNDLING_HOST_ITYPE"
 			ARCH="$ARCH"
 			EC2_ARCH="$EC2_ARCH"
 			TEST_ITYPE="$TEST_ITYPE"
+			KERNEL_HOST_AMI="$KERNEL_HOST_AMI"
 			AKI="$AKI"
 			ARI="$ARI"
 			echo "-- Executing \\\`$TYPE/bundle.sh\\\` on the bundling host"
@@ -277,7 +278,7 @@ host_teardown() {
 host_start() {
   echo "== Launching bundling host"
   BUNDLING_HOST_IID=$(ec2-run-instances --show-empty-fields $BUNDLING_HOST_AMI \
-    --group $BUNDLING_HOST_GROUP --key $BUNDLING_HOST_KEY --instance-type $HOST_ITYPE \
+    --group $BUNDLING_HOST_GROUP --key $BUNDLING_HOST_KEY --instance-type $BUNDLING_HOST_ITYPE \
     --availability-zone $HOST_AVAILABILITY_ZONE \
     | awk '$1 == "INSTANCE" { print $2 }') || exit 1
   
@@ -300,7 +301,7 @@ host_start() {
       root@$BUNDLING_HOST_IADDRESS:/tmp/
   done
   
-  case $HOST_ARCH in
+  case $BUNDLING_HOST_ARCH in
   "i686")   EPHEMERAL_STORE='/dev/sda2' ;;
   "x86_64") EPHEMERAL_STORE='/dev/sdb'  ;;
   esac
@@ -312,12 +313,12 @@ host_start() {
 		mount -t ext3 "$EPHEMERAL_STORE" /mnt
 		
 		echo "-- Constructing pacman mirrorlist"
-		wget -O mirrorlist "http://repos.archlinux.org/wsvn/packages/pacman-mirrorlist/repos/core-$HOST_ARCH/mirrorlist?op=dl&rev=0"
+		wget -O mirrorlist "http://repos.archlinux.org/wsvn/packages/pacman-mirrorlist/repos/core-$BUNDLING_HOST_ARCH/mirrorlist?op=dl&rev=0"
 		# TODO: Use the API endpoint to leave in the European mirrors if appropriate
 		cat mirrorlist | awk '\$1 == "#" { \
 		  if(\$0 ~ "United States") {foo = 1} else {foo = 0} }; \
 		  {if(foo == 1) print }' | \
-		  sed -r 's/^#(Server)/\1/' | sed 's/@carch@/$HOST_ARCH/' \
+		  sed -r 's/^#(Server)/\1/' | sed 's/@carch@/$BUNDLING_HOST_ARCH/' \
 		  > mirrorlist.regional
 		
 		wget -O bruenig-rankmirrors.tar.gz "http://github.com/bruenig/rankmirrors/tarball/25c28fd69785db6e83aee789e97134e1e3edfaa7"
@@ -334,7 +335,7 @@ host_start() {
 		pacman --noconfirm -S unzip rsync lzma cpio
 		
 		# FIXME: This will *have* to be updated with the ARM2 conversion is done
-		pacman --noconfirm -U http://arm.kh.nu/old/extra/os/$HOST_ARCH/ruby-1.8.7_p174-1-$HOST_ARCH.pkg.tar.gz
+		pacman --noconfirm -U http://arm.kh.nu/old/extra/os/$BUNDLING_HOST_ARCH/ruby-1.8.7_p174-1-$BUNDLING_HOST_ARCH.pkg.tar.gz
 		
 		pacman --noconfirm -Sc
 		
@@ -348,11 +349,11 @@ host_start() {
 		PROFILE
 	SETUP
   
-  echo "** ${BUNDLING_HOST_IID}[${BUNDLING_HOST_AMI}@${HOST_ITYPE}] launched: ${BUNDLING_HOST_IADDRESS}"
+  echo "** ${BUNDLING_HOST_IID}[${BUNDLING_HOST_AMI}@${BUNDLING_HOST_ITYPE}] launched: ${BUNDLING_HOST_IADDRESS}"
 }
 
 host_stop() {
-  echo "== Terminating the $HOST_ARCH bundling host"
+  echo "== Terminating the $BUNDLING_HOST_ARCH bundling host"
   IID=$(host_get "$@")
   if [[ -n $IID ]]; then
     ec2-terminate-instances --show-empty-fields $IID
@@ -370,7 +371,7 @@ host_stop() {
 host_get() {
   ec2-describe-instances --show-empty-fields \
     | awk '$1 == "INSTANCE" && $6 == "running" && $7 == "'$BUNDLING_HOST_GROUP'" && \
-      $10 == "'$HOST_ITYPE'" { print $2; exit }' || exit 1
+      $10 == "'$BUNDLING_HOST_ITYPE'" { print $2; exit }' || exit 1
 }
 
 # ====================
@@ -379,24 +380,26 @@ host_get() {
 
 case $3 in
   "32"|"x86"|"i386"|"i686")
-    HOST_ARCH="i686"
-    HOST_EC2_ARCH="i386"
-    BUNDLING_HOST_AMI="ami-05799e6c"
-    HOST_ITYPE="m1.small"
     ARCH="i686"
     EC2_ARCH="i386"
     TEST_ITYPE="m1.small"
+    BUNDLING_HOST_ARCH="i686"
+    BUNDLING_HOST_EC2_ARCH="i386"
+    BUNDLING_HOST_AMI="ami-05799e6c"
+    BUNDLING_HOST_ITYPE="m1.small"
+    KERNEL_HOST_AMI="ami-fa658593"
     AKI="aki-841efeed"
     ARI="ari-9a1efef3"
   ;;
   "64"|"x64"|"x86_64"|"x86-64"|"amd64")
-    HOST_ARCH="x86_64"
-    HOST_EC2_ARCH="x86_64"
-    BUNDLING_HOST_AMI="ami-1b799e72"
-    HOST_ITYPE="m1.large"
     ARCH="x86_64"
     EC2_ARCH="x86_64"
     TEST_ITYPE="m1.large"
+    BUNDLING_HOST_ARCH="x86_64"
+    BUNDLING_HOST_EC2_ARCH="x86_64"
+    BUNDLING_HOST_AMI="ami-1b799e72"
+    BUNDLING_HOST_ITYPE="m1.large"
+    KERNEL_HOST_AMI="ami-1a658573"
     AKI="aki-9c1efef5"
     ARI="ari-901efef9"
   ;;
