@@ -66,6 +66,8 @@ _bundle() {
   TYPE="$2"
   if [[ ! -d "$TYPE" ]]; then usage "$@"; fi
   
+  TAG=$(git name-rev --tags --name-only --always --no-undefined HEAD)
+  
   STARTED_HOST=''
   HOST_IID=$(host_get "$@")
   if [[ -z $HOST_IID ]]; then
@@ -89,6 +91,8 @@ _bundle() {
 			echo "-- Preparing bundling host"
 			source /root/.profile
 			
+			TAG="$TAG"
+			TYPE="$TYPE"
 			ELEMENTS="/tmp/$TYPE"
 			
 			AVAILABILITY_ZONE="$AVAILABILITY_ZONE"

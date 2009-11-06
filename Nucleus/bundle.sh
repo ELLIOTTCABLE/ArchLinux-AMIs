@@ -1,5 +1,3 @@
-RELEASE="0ae"
-
 ### Desired
 # curl - needed for the initscripts that download the pubkey
 ### Required
@@ -26,7 +24,7 @@ PACKS="bash coreutils openssh curl filesystem dcron dhcpcd gawk \
   pacman procps psmisc syslog-ng"
 
 TYPE="Nucleus"
-NAME="ArchLinux-$ARCH-$TYPE-$RELEASE"
+NAME="ArchLinux-$ARCH-$TYPE@$TAG"
 ROOT="/mnt/$NAME.root"
 
 echo "-- Creating filesystem"
