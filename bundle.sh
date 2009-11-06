@@ -2,8 +2,11 @@
 
 HOST_AVAILABILITY_ZONE="us-east-1a"
 
-HOST_GROUP="__bundling-host__"
-HOST_KEY=$HOST_GROUP
+BUNDLING_HOST_GROUP="__bundling-host__"
+BUNDLING_HOST_KEY=$BUNDLING_HOST_GROUP
+
+KERNEL_HOST_GROUP="__kernel-host__"
+KERNEL_HOST_KEY=$KERNEL_HOST_GROUP
 
 TEST_GROUP="__ami-testing__"
 TEST_KEY=$TEST_GROUP
@@ -68,26 +71,26 @@ _bundle() {
   
   TAG=$(git describe --exact-match HEAD 2>/dev/null || git rev-parse --short HEAD)
   
-  STARTED_HOST=''
-  HOST_IID=$(host_get "$@")
-  if [[ -z $HOST_IID ]]; then
+  STARTED_BUNDLING_HOST=''
+  BUNDLING_HOST_IID=$(host_get "$@")
+  if [[ -z $BUNDLING_HOST_IID ]]; then
     echo "== No bundling host exists, instantiating one"
-    STARTED_HOST='yes'
+    STARTED_BUNDLING_HOST='yes'
     host_setup "$@" || exit 1
     host_start "$@" || exit 1
   fi
   
-  HOST_IADDRESS=$(ec2-describe-instances --show-empty-fields $HOST_IID \
+  BUNDLING_HOST_IADDRESS=$(ec2-describe-instances --show-empty-fields $BUNDLING_HOST_IID \
     | awk '$1 == "INSTANCE" { print $4 }')
   
   echo "== Uploading elements to bundling host"
-  scp -qrp -o "StrictHostKeyChecking no" -i "id_rsa-$HOST_KEY" \
+  scp -qrp -o "StrictHostKeyChecking no" -i "id_rsa-$BUNDLING_HOST_KEY" \
     "./$TYPE" \
-    root@$HOST_IADDRESS:/tmp/
+    root@$BUNDLING_HOST_IADDRESS:/tmp/
   
   echo "== Connecting to bundling host"
   NAME=$(
-		cat "-" "./$TYPE/bundle.sh" <<-SETUP | ssh -o "StrictHostKeyChecking no" -i "id_rsa-$HOST_KEY" root@$HOST_IADDRESS | tail -n1
+		cat "-" "./$TYPE/bundle.sh" <<-SETUP | ssh -o "StrictHostKeyChecking no" -i "id_rsa-$BUNDLING_HOST_KEY" root@$BUNDLING_HOST_IADDRESS | tail -n1
 			echo "-- Preparing bundling host"
 			source /root/.profile
 			
@@ -96,14 +99,16 @@ _bundle() {
 			ELEMENTS="/tmp/$TYPE"
 			
 			HOST_AVAILABILITY_ZONE="$HOST_AVAILABILITY_ZONE"
-			HOST_GROUP="$HOST_GROUP"
-			HOST_KEY="$HOST_KEY"
+			BUNDLING_HOST_GROUP="$BUNDLING_HOST_GROUP"
+			BUNDLING_HOST_KEY="$BUNDLING_HOST_KEY"
+			KERNEL_HOST_GROUP="$KERNEL_HOST_GROUP"
+			KERNEL_HOST_KEY="$KERNEL_HOST_KEY"
 			TEST_KEY="$TEST_KEY"
 			TEST_GROUP="$TEST_GROUP"
 			BUCKET="$BUCKET"
 			HOST_ARCH="$HOST_ARCH"
 			HOST_EC2_ARCH="$HOST_EC2_ARCH"
-			HOST_AMI="$HOST_AMI"
+			BUNDLING_HOST_AMI="$BUNDLING_HOST_AMI"
 			HOST_ITYPE="$HOST_ITYPE"
 			ARCH="$ARCH"
 			EC2_ARCH="$EC2_ARCH"
@@ -120,9 +125,9 @@ _bundle() {
   
   
   
-  if [[ -n $STARTED_HOST ]]; then
+  if [[ -n $STARTED_BUNDLING_HOST ]]; then
     echo "-- Terminating the bundling host we launched"
-    STARTED_HOST=''
+    STARTED_BUNDLING_HOST=''
     host_stop     "$@" || exit 1
     host_teardown "$@" || exit 1
   fi
@@ -235,50 +240,50 @@ _host() {
 
 host_setup() {
   echo "== Preparing EC2 environment for bundling host"
-  HOST_GROUPID=$(ec2-describe-group --show-empty-fields | awk '$1 == "GROUP" \
-    && $3 == "'$HOST_GROUP'" { print $3 }')
-  if [[ -z $HOST_GROUPID ]]; then
-    ec2-add-group --show-empty-fields $HOST_GROUP \
+  BUNDLING_HOST_GROUPID=$(ec2-describe-group --show-empty-fields | awk '$1 == "GROUP" \
+    && $3 == "'$BUNDLING_HOST_GROUP'" { print $3 }')
+  if [[ -z $BUNDLING_HOST_GROUPID ]]; then
+    ec2-add-group --show-empty-fields $BUNDLING_HOST_GROUP \
       -d "Instances dedicated to bundling AMIs" || exit 1
-    ec2-authorize --show-empty-fields $HOST_GROUP \
+    ec2-authorize --show-empty-fields $BUNDLING_HOST_GROUP \
       --protocol tcp --port-range 22 || exit 1
-    echo "-- Added security group: $HOST_GROUP"
+    echo "-- Added security group: $BUNDLING_HOST_GROUP"
   fi
   
-  HOST_KEYID=$(ec2-describe-keypairs --show-empty-fields \
-    | awk '$1 == "KEYPAIR" && $2 == "'$HOST_KEY'" { print $2 }')
-  if [[ -z $HOST_KEYID || ! -f "id_rsa-$HOST_KEY" ]]; then
-    ec2-delete-keypair --show-empty-fields $HOST_KEY
-    rm -f "id_rsa-$HOST_KEY"
-    ec2-add-keypair --show-empty-fields $HOST_KEY \
-      > "id_rsa-$HOST_KEY" || exit 1
-    chmod 400 "id_rsa-$HOST_KEY" || exit 1
-    echo "-- Added keypair: $HOST_KEY"
+  BUNDLING_HOST_KEYID=$(ec2-describe-keypairs --show-empty-fields \
+    | awk '$1 == "KEYPAIR" && $2 == "'$BUNDLING_HOST_KEY'" { print $2 }')
+  if [[ -z $BUNDLING_HOST_KEYID || ! -f "id_rsa-$BUNDLING_HOST_KEY" ]]; then
+    ec2-delete-keypair --show-empty-fields $BUNDLING_HOST_KEY
+    rm -f "id_rsa-$BUNDLING_HOST_KEY"
+    ec2-add-keypair --show-empty-fields $BUNDLING_HOST_KEY \
+      > "id_rsa-$BUNDLING_HOST_KEY" || exit 1
+    chmod 400 "id_rsa-$BUNDLING_HOST_KEY" || exit 1
+    echo "-- Added keypair: $BUNDLING_HOST_KEY"
   fi
 }
 
 host_teardown() {
-  HOST_IIDS=$(ec2-describe-instances --show-empty-fields \
-    | awk '$1 == "INSTANCE" && $7 == "'$HOST_GROUP'" && \
+  BUNDLING_HOST_IIDS=$(ec2-describe-instances --show-empty-fields \
+    | awk '$1 == "INSTANCE" && $7 == "'$BUNDLING_HOST_GROUP'" && \
       $6 != "terminated" { print $6 }')
-  if [[ -z $HOST_IIDS ]]; then
+  if [[ -z $BUNDLING_HOST_IIDS ]]; then
     echo "-- There are no active bundling hosts, wiping groups and keys"
-    ec2-delete-group --show-empty-fields $HOST_GROUP
-    ec2-delete-keypair --show-empty-fields $HOST_KEY && \
-      rm -f "id_rsa-$HOST_KEY"
+    ec2-delete-group --show-empty-fields $BUNDLING_HOST_GROUP
+    ec2-delete-keypair --show-empty-fields $BUNDLING_HOST_KEY && \
+      rm -f "id_rsa-$BUNDLING_HOST_KEY"
   fi
 }
 
 host_start() {
   echo "== Launching bundling host"
-  HOST_IID=$(ec2-run-instances --show-empty-fields $HOST_AMI \
-    --group $HOST_GROUP --key $HOST_KEY --instance-type $HOST_ITYPE \
+  BUNDLING_HOST_IID=$(ec2-run-instances --show-empty-fields $BUNDLING_HOST_AMI \
+    --group $BUNDLING_HOST_GROUP --key $BUNDLING_HOST_KEY --instance-type $HOST_ITYPE \
     --availability-zone $HOST_AVAILABILITY_ZONE \
     | awk '$1 == "INSTANCE" { print $2 }') || exit 1
   
-  HOST_IADDRESS="(nil)"
-  while [[ $HOST_IADDRESS == "(nil)" ]]; do
-    HOST_IADDRESS=$(ec2-describe-instances --show-empty-fields $HOST_IID \
+  BUNDLING_HOST_IADDRESS="(nil)"
+  while [[ $BUNDLING_HOST_IADDRESS == "(nil)" ]]; do
+    BUNDLING_HOST_IADDRESS=$(ec2-describe-instances --show-empty-fields $BUNDLING_HOST_IID \
       | awk '$1 == "INSTANCE" { print $4 }')
   done
   
@@ -287,12 +292,12 @@ host_start() {
   until [[ $? == 0 ]]; do
     sleep 5
     # TODO: Get rid of these file requirements; take envvars if possible
-    scp -o "StrictHostKeyChecking no" -i "id_rsa-$HOST_KEY" \
+    scp -o "StrictHostKeyChecking no" -i "id_rsa-$BUNDLING_HOST_KEY" \
       ~/.ec2/*.pem \
       ~/.ec2/account_number \
       ~/.ec2/access_key \
       ~/.ec2/secret_key \
-      root@$HOST_IADDRESS:/tmp/
+      root@$BUNDLING_HOST_IADDRESS:/tmp/
   done
   
   case $HOST_ARCH in
@@ -301,7 +306,7 @@ host_start() {
   esac
   
   echo "== Connecting to bundling host"
-	cat <<-SETUP | ssh -o "StrictHostKeyChecking no" -i "id_rsa-$HOST_KEY" root@$HOST_IADDRESS
+	cat <<-SETUP | ssh -o "StrictHostKeyChecking no" -i "id_rsa-$BUNDLING_HOST_KEY" root@$BUNDLING_HOST_IADDRESS
 		echo "== Preparing host for bundling operations"
 		cd /tmp
 		mount -t ext3 "$EPHEMERAL_STORE" /mnt
@@ -343,7 +348,7 @@ host_start() {
 		PROFILE
 	SETUP
   
-  echo "** ${HOST_IID}[${HOST_AMI}@${HOST_ITYPE}] launched: ${HOST_IADDRESS}"
+  echo "** ${BUNDLING_HOST_IID}[${BUNDLING_HOST_AMI}@${HOST_ITYPE}] launched: ${BUNDLING_HOST_IADDRESS}"
 }
 
 host_stop() {
@@ -364,7 +369,7 @@ host_stop() {
 
 host_get() {
   ec2-describe-instances --show-empty-fields \
-    | awk '$1 == "INSTANCE" && $6 == "running" && $7 == "'$HOST_GROUP'" && \
+    | awk '$1 == "INSTANCE" && $6 == "running" && $7 == "'$BUNDLING_HOST_GROUP'" && \
       $10 == "'$HOST_ITYPE'" { print $2; exit }' || exit 1
 }
 
@@ -376,7 +381,7 @@ case $3 in
   "32"|"x86"|"i386"|"i686")
     HOST_ARCH="i686"
     HOST_EC2_ARCH="i386"
-    HOST_AMI="ami-05799e6c"
+    BUNDLING_HOST_AMI="ami-05799e6c"
     HOST_ITYPE="m1.small"
     ARCH="i686"
     EC2_ARCH="i386"
@@ -387,7 +392,7 @@ case $3 in
   "64"|"x64"|"x86_64"|"x86-64"|"amd64")
     HOST_ARCH="x86_64"
     HOST_EC2_ARCH="x86_64"
-    HOST_AMI="ami-1b799e72"
+    BUNDLING_HOST_AMI="ami-1b799e72"
     HOST_ITYPE="m1.large"
     ARCH="x86_64"
     EC2_ARCH="x86_64"
