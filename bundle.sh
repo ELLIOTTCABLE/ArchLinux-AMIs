@@ -66,7 +66,7 @@ _bundle() {
   TYPE="$2"
   if [[ ! -d "$TYPE" ]]; then usage "$@"; fi
   
-  TAG=$(git name-rev --tags --name-only --always --no-undefined HEAD)
+  TAG=$(git describe --exact-match HEAD 2>/dev/null || git rev-parse --short HEAD)
   
   STARTED_HOST=''
   HOST_IID=$(host_get "$@")
