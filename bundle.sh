@@ -406,7 +406,7 @@ host_start() {
   esac
   
 	ssh -o "StrictHostKeyChecking no" -i "id_rsa-$KERNEL_HOST_KEY" ubuntu@$KERNEL_HOST_IADDRESS <<-ITESTING
-		mount -t ext3 "$KERNEL_HOST_EPHEMERAL_STORE" /mnt
+		sudo mount -t ext3 "$KERNEL_HOST_EPHEMERAL_STORE" /mnt
 		cd /tmp
 		
 		sudo wget -q http://ppa.launchpad.net/timg-tpi/ubuntu/pool/main/l/linux-ec2/linux-image-\$(uname -r)_2.6.31-300.2_$KERNEL_ARCH.deb
