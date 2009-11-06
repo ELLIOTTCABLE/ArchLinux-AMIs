@@ -54,6 +54,10 @@ _usage() {
   exit 1
 }
 
+if [[ -z $1 || -z $2 ]]; then
+  _usage "$@"
+fi
+
 # ================
 # = AMI bundling =
 # ================
