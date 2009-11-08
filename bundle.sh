@@ -169,8 +169,8 @@ _bundle() {
   echo "== Registering $NAME as an AMI"
   AMI=$(ec2-register --show-empty-fields "$BUCKET/$NAME.manifest.xml" \
     | awk '/IMAGE/ { print $2 }')
-  
-  
+  ec2-modify-image-attribute --show-empty-fields \
+    --launch-permission --add all $AMI
   
   if [[ -n $STARTED_BUNDLING_HOST ]]; then
     echo "-- Terminating the bundling host we launched"
