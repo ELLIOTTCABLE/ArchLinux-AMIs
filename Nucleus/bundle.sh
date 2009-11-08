@@ -34,6 +34,7 @@ mkdir "$ROOT/proc/" ; mount -t proc   proc "$ROOT/proc"
 mkdir "$ROOT/dev/"  ; mount -o bind "/dev" "$ROOT/dev"
 
 mkdir -p "$ROOT/usr/aws/ec2/"
+cp "/tmp/README.markdown" "$ROOT/usr/aws/ec2/"
 
 mkdir -p "$ROOT/var/lib/pacman/"
 mkdir -p "$ROOT/var/cache/pacman/" ; mount -o bind {,"$ROOT"}"/var/cache/pacman"

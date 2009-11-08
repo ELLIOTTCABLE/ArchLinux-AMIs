@@ -120,6 +120,7 @@ _bundle() {
   echo "== Uploading elements to bundling host"
   scp -qrp -o "StrictHostKeyChecking no" -i "id_rsa-$BUNDLING_HOST_KEY" \
     "./$TYPE" \
+    "./README.markdown" \
     root@$BUNDLING_HOST_IADDRESS:/tmp/
   
   echo "== Connecting to bundling host"

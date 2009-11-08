@@ -10,12 +10,14 @@ cat <<'INTRODUCTION'
           [36m/##(   )##`                                                       
          [36m/#.--   --.#\[97m    A simple, elegant gnu/linux distribution.         
         [36m/`           `\                                                     [0m
- 
-     Please note, there are things you need to know about this machine
+
+     Please note, there are things you need to know about this instance
      before you start using it! You can view the README for the
-     ArchLinux-AMIs project on GitHub, available at the following URL:
+     ArchLinux-AMIs project on GitHub, available both on the Web, and on
+     this instance’s filesystem:
 
                 [4;94mhttp://github.com/elliottcable/ArchLinux-AMIs/[0m
+                         /usr/aws/ec2/README.markdown
 
      Most importantly,
      - You [1mshould not[0m re-bundle this AMI without reading the re-bundling
