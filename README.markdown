@@ -19,12 +19,12 @@ Arch Linux, a superlatively clean and elegant distro, generally follows ‘the
 [Arch Way][],’ a set of four core tenets governing the design of Arch, and its
 configuration system and package repository:
 
-- *Simple*, without unnecessary additions, modifications, or complications
-- *Elegant*, combining simplicity, power, effectiveness, a quality of neatness
+- *Simple*: without unnecessary additions, modifications, or complications
+- *Elegant*: combining simplicity, power, effectiveness, a quality of neatness
   and an ingenious grace of design
-- *Versatile*, capable of doing many things competently; having varied uses or
+- *Versatile*: capable of doing many things competently; having varied uses or
   many functions
-- *Expedient*, easy, or quick; convenient
+- *Expedient*: easy, or quick; convenient
 
   [Arch Way]: <http://wiki.archlinux.org/index.php/The_Arch_Way_v2.0>
     "The Arch wiki on the Arch Way"
@@ -62,16 +62,16 @@ The planned types of AMIs are described by this tree:
   SSH connections, and installing more packages. This is where to start if you
   don’t want *any* of the functionality provided by the fatter packages, and
   want to design yourself the lightest possible server image.
-  - `Atom`: *not yet implemented* The basis of the rest of the system; the
+  - `Atom`: (*not yet implemented*) The basis of the rest of the system; the
     `Atom` AMIs all have a a few admin amenities (like text editors, a daemon
     monitoring/management system), as well as instantiation magic left out of
     the `Nucleus`.
-    - `Web`: *not yet implemented*
-      - `Ruby`: *not yet implemented*
-        - `Passenger`: *not yet implemented*
-      - `JavaScript`: *not yet implemented*
-    - `git`: *not yet implemented*
-    - `Bundling`: *not yet implemented*
+    - `Web`: (*not yet implemented*)
+      - `Ruby`: (*not yet implemented*)
+        - `Passenger`: (*not yet implemented*)
+      - `JavaScript`: (*not yet implemented*)
+    - `git`: (*not yet implemented*)
+    - `Bundling`: (*not yet implemented*)
 
 **Note:** The `Nucleus` AMI *does not have* the instantiation magic provided
 by the rest of the systems; you will have to configure your user accounts,
@@ -133,9 +133,8 @@ I, personally, don’t generally re-bundle AMIs; I prefer to know exactly what�
 going on, which is achieved by building them myself from scratch. However,
 it’s not a difficult task.
 
-There is plenty of information on re-bundling AMIs
-[in the EC2 documentation][ec2-rebundling]; [alestic][] also has
-[a nice tutorial][alestic-tutorial] on the subject. The AMIs created by this
+There is plenty of information on re-bundling AMIs in the [EC2 docs][];
+[alestic][] also has [tutorial][] on the subject. The AMIs created by this
 project are friendly to re-bundling; however, be aware that you need to clean
 out some files created, that inform the instance of its state (such as
 whether or not it has been instantiated yet; this is how these AMIs preform
@@ -148,9 +147,9 @@ This will clear out any files created by the hosts on boot, which will allow
 your bundled system to be initialized properly every time it is subsequently
 instantiated.
 
-  [ec2-rebundling]: <http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/index.html?ami-from-existing-image.html>
+  [EC2 documentation]: <http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/index.html?ami-from-existing-image.html>
     "Re-bundling instructions from EC2’s Developer Guide"
   [alestic]: <http://alestic.com/blog/>
     "An interesting blog on EC2"
-  [alestic-tutorial]: <http://alestic.com/2009/06/ec2-ami-bundle>
+  [tutorial]: <http://alestic.com/2009/06/ec2-ami-bundle>
     "alestic’s re-bundling tutorial"
