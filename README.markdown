@@ -142,7 +142,7 @@ whether or not it has been instantiated yet; this is how these AMIs preform
 first-boot initialization when instantiated). This is fairly easy, simply run
 the following command:
 
-    /usr/aws/ec2/.*
+    rm -f /usr/aws/ec2/.*
 
 This will clear out any files created by the hosts on boot, which will allow
 your bundled system to be initialized properly every time it is subsequently
