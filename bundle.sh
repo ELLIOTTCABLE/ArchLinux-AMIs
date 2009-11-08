@@ -66,7 +66,7 @@ _usage() {
 		    EC2_CERT: Absolute path to your EC2 X.509 certificate
 		    
 		    AWS_ACCOUNT_NUMBER: Your numerical AWS account number (i.e.
-		      316177411691, no dashes—will be read from $EC2_HOME/account_number
+		      3161-7741-1691—will be read from $EC2_HOME/account_number
 		      if undefined)
 		    S3_ACCESS_KEY: Your S3 access key (will be read from
 		      $EC2_HOME/access_key if undefined)
