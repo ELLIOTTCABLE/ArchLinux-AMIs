@@ -50,11 +50,11 @@ pacman --noconfirm --noprogressbar --config="/etc/pacman.conf" \
 ldconfig -r "$ROOT"
 
 echo "-- Copying over configuration files"
-cp -p {"$ELEMENTS","$ROOT"}"/etc/inittab"
-cp -p {"$ELEMENTS","$ROOT"}"/etc/rc.conf"
+cp -p {"$COMMON_ELEMENTS","$ROOT"}"/etc/inittab"
+cp -p {"$COMMON_ELEMENTS","$ROOT"}"/etc/rc.conf"
+cp -p {"$COMMON_ELEMENTS","$ROOT"}"/etc/hosts.deny"
+cp -p {"$COMMON_ELEMENTS","$ROOT"}"/etc/profile.d/ami.sh"
 cp -p {"$ELEMENTS","$ROOT"}"/etc/rc.local"
-cp -p {"$ELEMENTS","$ROOT"}"/etc/hosts.deny"
-cp -p {"$ELEMENTS","$ROOT"}"/etc/profile.d/ami.sh"
 
 cp -p "/tmp/mirrorlist.ranked" "$ROOT/etc/pacman.d/mirrorlist"
 

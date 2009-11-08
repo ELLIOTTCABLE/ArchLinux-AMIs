@@ -120,6 +120,7 @@ _bundle() {
   
   echo "== Uploading elements to bundling host"
   scp -qrp -o "StrictHostKeyChecking no" -i "id_rsa-$BUNDLING_HOST_KEY" \
+    "./Common" \
     "./$TYPE" \
     "./README.markdown" \
     root@$BUNDLING_HOST_IADDRESS:/tmp/
@@ -133,6 +134,7 @@ _bundle() {
 			TAG="$TAG"
 			TYPE="$TYPE"
 			ELEMENTS="/tmp/$TYPE"
+			COMMON_ELEMENTS="/tmp/Common"
 			
 			EC2_HOME="$EC2_HOME"
 			EC2_PRIVATE_KEY="$EC2_PRIVATE_KEY"
