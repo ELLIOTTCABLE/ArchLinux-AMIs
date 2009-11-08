@@ -29,12 +29,13 @@ if [[ -z $S3_SECRET_KEY ]]; then
 _usage() {
   
 	cat <<-USAGE
-		Usage: `basename $0` <command> <argument> [architecture]
+		Usage: `basename $0` <command> <argument> [architecture] [options]
 		  <command> may be one of (bundle|test|host).
 		  
 		  "bundle" expects the following form:
 		    `basename $0` bundle <type> [architecture]
 		    <type> is any of the folder names in this distribution.
+		    [options] may include --public.
 		  
 		  "test" expects one of the following forms:
 		    `basename $0` test <AMI-ID> [architecture]
@@ -169,8 +170,10 @@ _bundle() {
   echo "== Registering $NAME as an AMI"
   AMI=$(ec2-register --show-empty-fields "$BUCKET/$NAME.manifest.xml" \
     | awk '/IMAGE/ { print $2 }')
-  ec2-modify-image-attribute --show-empty-fields \
-    --launch-permission --add all $AMI
+  if [[ -n $PUBLIC ]]; then
+    ec2-modify-image-attribute --show-empty-fields \
+      --launch-permission --add all $AMI
+  fi
   
   if [[ -n $STARTED_BUNDLING_HOST ]]; then
     echo "-- Terminating the bundling host we launched"
@@ -502,6 +505,12 @@ host_get() {
 # ====================
 # = Argument parsing =
 # ====================
+
+for arg in $@; do
+  if [[ $arg == "--public" ]]; then
+    PUBLIC='public';
+  fi
+done
 
 case $3 in
   "32"|"x86"|"i386"|"i686")
