@@ -409,8 +409,7 @@ host_start() {
 		
 		pacman --noconfirm -S unzip rsync lzma cpio
 		
-		# FIXME: This will *have* to be updated with the ARM2 conversion is done
-		pacman --noconfirm -U http://arm.kh.nu/old/extra/os/$BUNDLING_HOST_ARCH/ruby-1.8.7_p174-1-$BUNDLING_HOST_ARCH.pkg.tar.gz
+		pacman --noconfirm -U http://www.schlunix.org/archlinux/extra/os/$BUNDLING_HOST_ARCH/ruby-1.8.7_p174-1-$BUNDLING_HOST_ARCH.pkg.tar.gz
 		
 		pacman --noconfirm -Sc
 		
