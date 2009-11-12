@@ -172,13 +172,15 @@ _bundle() {
   echo "== Registering $NAME as an AMI"
   AMI=$(ec2-register --show-empty-fields "$BUCKET/$NAME.manifest.xml" \
     | awk '/IMAGE/ { print $2 }')
+  
   if [[ -n $PUBLIC ]]; then
+    echo "== Making $AMI public"
     ec2-modify-image-attribute --show-empty-fields \
       --launch-permission --add all $AMI
   fi
   
   if [[ -n $STARTED_BUNDLING_HOST ]]; then
-    echo "-- Terminating the bundling host we launched"
+    echo "== Terminating the bundling host we launched"
     STARTED_BUNDLING_HOST=''
     host_stop     "$@" || exit 1
     host_teardown "$@" || exit 1
