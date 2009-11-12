@@ -14,17 +14,18 @@ TEST_KEY=$TEST_GROUP
 BUCKET="arch-linux"
 
 if [[ -z $EC2_HOME ]]; then EC2_HOME="$HOME/.ec2"; fi
+if [[ -z $AWS_HOME ]]; then AWS_HOME="$EC2_HOME"; fi
 if [[ -z $EC2_PRIVATE_KEY ]]; then
-  EC2_PRIVATE_KEY=$($(which ls) "$EC2_HOME/pk-*.pem"); fi
+  EC2_PRIVATE_KEY=$($(which ls) "$AWS_HOME/pk-*.pem"); fi
 if [[ -z $EC2_CERT ]]; then
-  EC2_CERT=$($(which ls) "$EC2_HOME/cert-*.pem"); fi
+  EC2_CERT=$($(which ls) "$AWS_HOME/cert-*.pem"); fi
 
 if [[ -z $AWS_ACCOUNT_NUMBER ]]; then
-  AWS_ACCOUNT_NUMBER="$(cat $EC2_HOME/account_number)"; fi
+  AWS_ACCOUNT_NUMBER="$(cat $AWS_HOME/account_number)"; fi
 if [[ -z $S3_ACCESS_KEY ]]; then
-  S3_ACCESS_KEY="$(cat $EC2_HOME/access_key)"; fi
+  S3_ACCESS_KEY="$(cat $AWS_HOME/access_key)"; fi
 if [[ -z $S3_SECRET_KEY ]]; then
-  S3_SECRET_KEY="$(cat $EC2_HOME/SECRET_KEY)"; fi
+  S3_SECRET_KEY="$(cat $AWS_HOME/SECRET_KEY)"; fi
 
 _usage() {
   
@@ -62,17 +63,20 @@ _usage() {
 		ENV variables:
 		  This tool expects a few environment variables to be configured:
 		    
-		    EC2_HOME: Directory containing your EC2 tools and certificates
+		    EC2_HOME: Directory containing your EC2 tools
+		    AWS_HOME: Directory containing your EC2/S3 certificates (defaults
+		      to EC2_HOME)
+		    
 		    EC2_PRIVATE_KEY: Absolute path to your EC2 X.509 private key file
 		    EC2_CERT: Absolute path to your EC2 X.509 certificate
 		    
 		    AWS_ACCOUNT_NUMBER: Your numerical AWS account number (i.e.
-		      3161-7741-1691, will be read from $EC2_HOME/account_number
+		      3161-7741-1691, will be read from AWS_HOME/account_number
 		      if undefined)
 		    S3_ACCESS_KEY: Your S3 access key (will be read from
-		      $EC2_HOME/access_key if undefined)
+		      AWS_HOME/access_key if undefined)
 		    S3_SECRET_KEY: Your S3 secret access key (will be read from
-		      $EC2_HOME/secret_key if undefined)
+		      AWS_HOME/secret_key if undefined)
 		  
 		Usage examples:
 		  `basename $0` host start
@@ -137,6 +141,7 @@ _bundle() {
 			COMMON_ELEMENTS="/tmp/Common"
 			
 			EC2_HOME="$EC2_HOME"
+			AWS_HOME="$AWS_HOME"
 			EC2_PRIVATE_KEY="$EC2_PRIVATE_KEY"
 			EC2_CERT="$EC2_CERT"
 			AWS_ACCOUNT_NUMBER="$AWS_ACCOUNT_NUMBER"
