@@ -153,3 +153,11 @@ instantiated.
     "An interesting blog on EC2"
   [tutorial]: <http://alestic.com/2009/06/ec2-ami-bundle>
     "alestic’s re-bundling tutorial"
+
+License
+-------
+This project is released for public usage under the terms of the very-permissive [ISC license][] (a
+modern evolution of the MIT / BSD licenses); more information is available in [COPYING][].
+
+   [ISC license]: <http://choosealicense.com/licenses/isc/> "Information about the ISC license"
+   [COPYING]: <./COPYING.text>
